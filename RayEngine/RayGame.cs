@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace RayEngine
 {
-    public class Game1 : Game
+    public class RayGame : Game
     {
         public static SpriteFont DefaultFont { get; set; } = null!;
         public static Texture2D[] CompassTextures { get; } = new Texture2D[4];
@@ -37,7 +37,7 @@ namespace RayEngine
 
         private KeyboardState PreviousState { get; set; }
 
-        public Game1()
+        public RayGame()
         {
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -206,7 +206,7 @@ namespace RayEngine
             GameScreen.Draw(0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight, 0, 0, 1,
                 activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Intersections)
-                    .DrawText(Player.Plane, 0, 0, 150, 150, 150)
+
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
             var compass = Player.Direction.Atan2() switch

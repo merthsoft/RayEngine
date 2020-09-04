@@ -57,7 +57,7 @@ namespace RayEngine
 
         public IActiveRenderer DrawText(object text, float x, float y, int r, int g, int b)
         {
-            SpriteBatch.DrawString(Game1.DefaultFont, text.ToString(), new(x, y), new(r, g, b));
+            SpriteBatch.DrawString(RayGame.DefaultFont, text.ToString(), new(x, y), new(r, g, b));
             return this;
         }
     }
