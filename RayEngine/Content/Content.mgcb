@@ -28,6 +28,11 @@
 /processor:RayTextureProcessor
 /build:Sprites/Actors/Rat/1.bmp
 
+#begin Sprites/Actors/WaterMelon/1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Actors/WaterMelon/1.bmp
+
 #begin Sprites/Static/GreyWellBlood.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor

@@ -7,7 +7,7 @@ namespace RayEngine.Actors
 {
     public class Wanderer : Actor
     {
-        private static Random Random = new Random();
+        private static readonly Random Random = new Random();
 
         private int WalkTimer = 15;
         private int TurnTimer = 25;
@@ -19,7 +19,7 @@ namespace RayEngine.Actors
 
         public override void Act(Map map)
         {
-            TurnTimer--;
+             TurnTimer--;
             WalkTimer--;
 
             (var posX, var posY) = Location;

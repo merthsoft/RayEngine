@@ -6,9 +6,9 @@ namespace RayLib
 {
     public record RayTexture : IEnumerable<ColorStrip>
     {
-        public static RayTexture Empty { get; } = new();
+        public static RayTexture Empty { get; } = new(0, 0);
 
-        public Vector2d Size { get; set; }
+        public (int w, int h) Size { get; set; }
         public List<ColorStrip> ColorStrips { get; } = new();
 
         public ColorStrip this[int col]
@@ -17,8 +17,8 @@ namespace RayLib
         public (int a, int r, int g, int b) this[int x, int y]
             => ColorStrips[x][y];
 
-        public RayTexture()
-            => Size = (64, 64);
+        protected RayTexture()
+            => Size = (0, 0);
 
         public RayTexture(int w, int h)
             => Size = (w, h);
@@ -33,7 +33,7 @@ namespace RayLib
         public void Add(int a, int r, int g, int b)
         {
             var strip = ColorStrips.LastOrDefault();
-            if (strip == null || strip.Count() == Size.Y)
+            if (strip == null || strip.Count() == Size.h)
                 strip = NewStrip();
             strip.Add(a, r, g, b);
         }

@@ -22,7 +22,7 @@ namespace RayEngine
         {
             var viewMatrix = Matrix.Identity;
             var projectionMatrix = Matrix.CreateOrthographicOffCenter(left, right, bottom, top, zNearPlane, zFarPlane);
-            SpriteBatch.Begin(transformMatrix: viewMatrix);
+            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, transformMatrix: viewMatrix);
             PrimitiveBatch.Begin(ref projectionMatrix, ref viewMatrix);
             action(this);
             PrimitiveBatch.End();

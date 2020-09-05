@@ -2,6 +2,8 @@
 using RayLib;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using System;
 
 namespace RayEngine
 {
@@ -10,6 +12,18 @@ namespace RayEngine
     {
         public override RayTexture Process(Image<Rgba32> input, ContentProcessorContext context)
         {
+            if (input.Width != input.Height)
+            {
+                var size = Math.Max(input.Width, input.Height);
+                input.Mutate(x => x.Resize(new ResizeOptions
+                {
+                    Size = new(size, size),
+                    Mode = ResizeMode.Min,
+                    Sampler = KnownResamplers.Bicubic,
+
+                }));
+            }
+
             var ret = new RayTexture(input.Width, input.Height);
             for (int x = 0; x < input.Width; x++)
                 for (int y = 0; y < input.Height; y++)

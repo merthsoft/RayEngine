@@ -1,8 +1,7 @@
-﻿using System;
-using RayLib.Defs;
+﻿using RayLib.Defs;
+using RayLib.Objects;
 using System.Collections.Generic;
 using System.Linq;
-using RayLib.Objects;
 
 namespace RayLib
 {
@@ -108,11 +107,12 @@ namespace RayLib
                     : posX + distance * rayDir.X;
                 wallX -= (int)wallX;
 
-                var texX = (int)(wallX * 64.0);
+                var textureWidth = wall.DrawSize.W;
+                var texX = (int)(wallX * textureWidth);
                 if (!northWall && rayDir.X > 0)
-                    texX = 64 - texX - 1;
+                    texX = textureWidth - texX - 1;
                 if (northWall && rayDir.Y < 0)
-                    texX = 64 - texX - 1;
+                    texX = textureWidth - texX - 1;
 
                 var intersection = new WallIntersection(wall, x, texX, drawStart, drawStart + lineHeight, distance, lineHeight, northWall);
 
@@ -152,7 +152,8 @@ namespace RayLib
 
                 for (int stripe = drawStartX; stripe < drawEndX; stripe++)
                 {
-                    var texX = (stripe - (-spriteWidth / 2 + spriteScreenX)) * 64 / spriteWidth;
+                    var textureWidth = (int)obj.Def.DrawSize.W;
+                    var texX = (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureWidth / spriteWidth;
                     if (transformY > 0 && stripe > 0 && stripe < viewWidth && transformY < zbuffer[stripe])
                         yield return new ObjectIntersection(obj, stripe, texX, drawStartY, drawEndY, transformY, spriteHeight);
                 }

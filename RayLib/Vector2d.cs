@@ -7,8 +7,8 @@ namespace RayLib
     public record Vector2d : IEquatable<Vector2d>
     {
         public static Vector2d Zero = new Vector2d(0, 0);
+
         public double X { get; }
-               
         public double Y { get; }
 
         public static Vector2d operator +(Vector2d lhs, Vector2d rhs)

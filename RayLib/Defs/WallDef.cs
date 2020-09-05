@@ -10,7 +10,7 @@
         public RayTexture EastWestTexture { get; } = null!;
 
         public WallDef(string name, RayTexture northSouthTexture, RayTexture eastWestTexture) 
-            : base(name)
+            : base(name, northSouthTexture.Size)
             => (NorthSouthTexture, EastWestTexture)
              = (northSouthTexture, eastWestTexture);
     }

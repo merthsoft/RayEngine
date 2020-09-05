@@ -43,14 +43,16 @@ namespace RayEngine
         private static void RenderTexture(IActiveRenderer screen, Intersection intersection, int viewHeight, RayTexture texture)
         {
             var column = texture[intersection.TextureX];
-            var step = 1.0 * 64 / intersection.Height;
+            var step = (double)intersection.Def.DrawSize.H / (double)intersection.Height;
             var texPos = (intersection.Top - viewHeight / 2 + intersection.Height / 2) * step;
+            
+            var textureHeight = (int)intersection.Def.DrawSize.H - 1;
+            var distanceScale = (int)(6 * intersection.Distance);
             for (var y = intersection.Top; y < intersection.Bottom; y++)
             {
-                var texY = (int)texPos & (63);
+                var texY = (int)texPos & textureHeight;
                 texPos += step;
                 (var a, var r, var g, var b) = column[texY];
-                var distanceScale = (int)(6 * intersection.Distance);
                 screen.PlotPoint(intersection.ScreenX, y, a, r - distanceScale, g - distanceScale, b - distanceScale);
             }
         }

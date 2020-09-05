@@ -51,8 +51,9 @@ namespace RayEngine
             var well = new StaticObjectDef("GreyWellFull", Content.Load<RayTexture>("Sprites/Static/GreyWellFull"));
             var bloodyWell = new StaticObjectDef("GreyWellBlood", Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
             var vines = new StaticObjectDef("Vines", Content.Load<RayTexture>("Sprites/Static/Vines"));
-            var rat = new ActorDef("Rat");
-            rat.Textures.Add(Content.Load<RayTexture>("Sprites/Actors/Rat/1"));
+
+            var rat = new ActorDef("Rat", Content.Load<RayTexture>("Sprites/Actors/Rat/1"));
+            var melon = new ActorDef("Melon", Content.Load<RayTexture>("Sprites/Actors/WaterMelon/1"));
 
             var i = 0;
             foreach (var line in s.Split('\n').Select(s => s.Trim()))
@@ -70,6 +71,8 @@ namespace RayEngine
                         Map.SpawnObject(i, j, bloodyWell);
                     else if (c == 'r')
                         Map.SpawnActor<Wanderer>(i, j, rat);
+                    else if (c == '+')
+                        Map.SpawnActor<Wanderer>(i, j, melon);
                     else
                         Map[0, i, j] = WallDef.Empty;
                     j++;
@@ -110,11 +113,11 @@ namespace RayEngine
                   1                      1
                   1        *             1
                   1                      1
-                  1     22222    3 3 3   1
-                  1 r   2   2            1
-                  1     2   2    3   3   1
-                  1     2   2            1
-                  1    *22 22    3 3 3   1
+                  1     2222222223 3 3   1
+                  1r+   2       2        1
+                  1     2 r     23   3   1
+                  1     2       2        1
+                  1    *22 2222223 3 3   1
                   1                      1
                   1                      1
                   1                      1

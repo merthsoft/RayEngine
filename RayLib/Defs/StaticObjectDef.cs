@@ -5,7 +5,7 @@
         public RayTexture Texture { get; } = null!;
 
         public StaticObjectDef(string name, RayTexture texture)
-            : base(name)
+            : base(name, texture.Size)
         => Texture = texture;
     }
 }
