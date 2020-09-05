@@ -5,7 +5,6 @@ namespace RayLib.Defs
     [DebuggerDisplay("{DefName}: {Name}")]
     public record Def
     {
-
         public static Def Empty { get; } = new("<EMPTY>");
 
         public virtual string DefName => nameof(Def);

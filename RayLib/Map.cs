@@ -2,6 +2,7 @@
 using RayLib.Defs;
 using System.Collections.Generic;
 using System.Linq;
+using RayLib.Objects;
 
 namespace RayLib
 {
@@ -9,6 +10,7 @@ namespace RayLib
     {
         private List<WallDef[,]> Layers { get; } = new();
         private List<GameObject> StaticObjects { get; } = new();
+        private List<Actor> Actors { get; } = new();
 
         public Vector2d Size { get; private set; }
         public int NumLayers => Layers.Count;
@@ -36,11 +38,21 @@ namespace RayLib
             }
         }
 
+        public void Update()
+            => Actors.ForEach(a => a.Act(this));
+
         public GameObject SpawnObject(int x, int y, StaticObjectDef def)
         {
             var obj = new GameObject(def) { Location = (x + .5, y + .5) };
             StaticObjects.Add(obj);
             return obj;
+        }
+
+        public GameObject SpawnActor<T>(int x, int y, ActorDef def) where T : Actor, new()
+        {
+            var w = new T() { Def = def , Location = (x + .5, y + .5) };
+            Actors.Add(w);
+            return w;
         }
 
         public IEnumerable<Intersection> GenerateIntersections(GameObject requestingObject, int viewWidth, int viewHeight)
@@ -108,7 +120,7 @@ namespace RayLib
                 zbuffer[x] = intersection.Distance;
             }
 
-            foreach (var obj in StaticObjects.OrderBy(o => o.Location.UnscaledDistance(requestingObject.Location)))
+            foreach (var obj in StaticObjects.Union(Actors).OrderByDescending(o => o.Location.UnscaledDistance(requestingObject.Location)))
             {
                 var (planeX, planeY) = requestingObject.Plane;
                 var (dirX, dirY) = requestingObject.Direction;

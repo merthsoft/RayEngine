@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using RayLib;
 using RayLib.Defs;
+using RayLib.Objects;
 using System.Collections.Generic;
 
 namespace RayEngine
@@ -31,8 +32,13 @@ namespace RayEngine
         private static void RenderWallTexture(this IActiveRenderer screen, WallIntersection wall, int viewHeight)
             => RenderTexture(screen, wall, viewHeight, wall.NorthWall ? wall.WallDef.NorthSouthTexture : wall.WallDef.EastWestTexture);
 
-        private static void RenderObjectTexture(this IActiveRenderer screen, ObjectIntersection obj, int viewHeight) 
-            => RenderTexture(screen, obj, viewHeight, (obj.Def as StaticObjectDef)!.Texture);
+        private static void RenderObjectTexture(this IActiveRenderer screen, ObjectIntersection obj, int viewHeight)
+        {
+            if (obj.Def is StaticObjectDef staticObj)
+                RenderTexture(screen, obj, viewHeight, staticObj.Texture);
+            else if (obj.Object is Actor a)
+                RenderTexture(screen, obj, viewHeight, a.CurrentTexture);
+        }
 
         private static void RenderTexture(IActiveRenderer screen, Intersection intersection, int viewHeight, RayTexture texture)
         {
