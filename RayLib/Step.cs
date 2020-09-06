@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RayLib
 {
-    public class Step
+    public record Step
     {
         public IEnumerable<Intersection> Intersections { get; }
         public IEnumerable<GameObject>?[,] ObjectMap { get; }

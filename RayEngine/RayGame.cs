@@ -27,7 +27,7 @@ namespace RayEngine
 
         private FramesPerSecondCounter FramesPerSecondCounter { get; } = new();
 
-        private Step Step { get; set; } = null!;
+        private Step? Step { get; set; } = null;
         private Map Map { get; } = new(24, 24, 1);
         private Player Player { get; } = new Player(Def.Empty)
         {
@@ -145,8 +145,8 @@ namespace RayEngine
 
         protected override void Update(GameTime gameTime)
         {
-            PreviousState = HandleKeyboardInput();
-
+            if (Step != null)
+                PreviousState = HandleKeyboardInput();
             Step = Map.Update(Player, ViewWidth, ViewHeight);
 
             FramesPerSecondCounter.Update(gameTime);
@@ -201,7 +201,9 @@ namespace RayEngine
                 planeY = oldPlaneX * rotSpeed.Sin() + planeY * rotSpeed.Cos();
             }
 
-            if (Map[0, posX, posY] == WallDef.Empty)
+            var objectMap = Step.ObjectMap[(int)posX, (int)posY];
+            if (Map[0, posX, posY] == WallDef.Empty
+                &&  objectMap?.FirstOrDefault(o => o.Blocking) == null)
             {
                 Player.Location = (posX, posY).Round();
                 Player.Direction = (dirX, dirY).Round();
