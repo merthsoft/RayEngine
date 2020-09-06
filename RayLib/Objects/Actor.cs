@@ -7,6 +7,8 @@ namespace RayLib.Objects
         public int TextureIndex { get; set; }
         public ActorDef ActorDef => (Def as ActorDef)!;
 
+        public override bool Blocking => true;
+
         protected Actor()
             : base(ActorDef.Empty) { }
 

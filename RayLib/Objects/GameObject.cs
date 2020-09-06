@@ -10,6 +10,8 @@ namespace RayLib.Objects
         public Vector2d Direction { get; set; } = (1, 0);
         public Vector2d Plane { get; set; } = (0, 0.66f);
 
+        public abstract bool Blocking { get; }
+
         public GameObject(Def def)
             => Def = def;
 

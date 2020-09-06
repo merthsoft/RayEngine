@@ -25,9 +25,9 @@ namespace RayEngine
         private int ViewWidth => (int)(4f*Graphics.PreferredBackBufferHeight / 3f);
         private int ViewHeight => Graphics.PreferredBackBufferHeight;
 
-        private List<Intersection> Intersections { get; } = new();
         private FramesPerSecondCounter FramesPerSecondCounter { get; } = new();
 
+        private Step Step { get; set; } = null!;
         private Map Map { get; } = new(24, 24, 1);
         private Player Player { get; } = new Player(Def.Empty)
         {
@@ -50,9 +50,15 @@ namespace RayEngine
 
         private void StringToMap(string s)
         {
-            var well = new StaticObjectDef("GreyWellFull", Content.Load<RayTexture>("Sprites/Static/GreyWellFull"));
-            var bloodyWell = new StaticObjectDef("GreyWellBlood", Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
-            var vines = new StaticObjectDef("Vines", Content.Load<RayTexture>("Sprites/Static/Vines"));
+            var well = new StaticObjectDef(
+                name: "GreyWellFull", blocking: true, 
+                texture: Content.Load<RayTexture>("Sprites/Static/GreyWellFull"));
+            var bloodyWell = new StaticObjectDef(
+                name: "GreyWellBlood", blocking: true, 
+                texture: Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
+            var vines = new StaticObjectDef(
+                name: "Vines", blocking: false, 
+                Content.Load<RayTexture>("Sprites/Static/Vines"));
 
             var rat = new ActorDef("Rat", Content.Load<RayTexture>("Sprites/Actors/Rat/1"));
             var melon = new ActorDef("Melon", Content.Load<RayTexture>("Sprites/Actors/WaterMelon/1"));
@@ -135,20 +141,13 @@ namespace RayEngine
                   14      ~              1
                   144444444              1
                   111111111111111111111111");
-            
-
-
-            Intersections.AddRange(Map.GenerateIntersections(Player, ViewWidth, ViewHeight));
         }
 
         protected override void Update(GameTime gameTime)
         {
             PreviousState = HandleKeyboardInput();
 
-            Map.Update();
-
-            Intersections.Clear();
-            Intersections.AddRange(Map.GenerateIntersections(Player, ViewWidth, ViewHeight));
+            Step = Map.Update(Player, ViewWidth, ViewHeight);
 
             FramesPerSecondCounter.Update(gameTime);
             base.Update(gameTime);
@@ -218,7 +217,7 @@ namespace RayEngine
             Graphics.GraphicsDevice.Clear(Color.Black);
             GameScreen.Draw(0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight, 0, 0, 1,
                 activeRederer => activeRederer
-                    .RenderWorld(ViewWidth, ViewHeight, Intersections)
+                    .RenderWorld(ViewWidth, ViewHeight, Step)
 
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);

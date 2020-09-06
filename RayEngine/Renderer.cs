@@ -1,10 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 using MonoGame.Extended.VectorDraw;
 using RayLib;
 using System;
-using System.Security.Cryptography;
 
 namespace RayEngine
 {
@@ -29,35 +27,21 @@ namespace RayEngine
             SpriteBatch.End();
         }
 
-        public IActiveRenderer DrawFilledRectangle(float x, float y, float width, float height, int r, int g, int b)
+        public IActiveRenderer DrawLine(float x1, float y1, float x2, float y2, int a, int r, int g, int b)
         {
-            for (var i = x; i < x + width; i++)
-                PrimitiveDrawing.DrawSegment(new(i, y), new(i, y + height), new(r, g, b));
-            return this;
-        }
-
-        public IActiveRenderer DrawFilledCircle(float x, float y, float radius, int r, int g, int b)
-        {
-            PrimitiveDrawing.DrawSolidCircle(new(x, y), radius, new(r, g, b));
-            return this;
-        }
-
-        public IActiveRenderer DrawLine(float x1, float y1, float x2, float y2, int r, int g, int b)
-        {
-            PrimitiveDrawing.DrawSegment(new(x1, y1), new(x2, y2), new(r, g, b));
+            PrimitiveDrawing.DrawSegment(new(x1, y1), new(x2, y2), new(r, g, b, a));
             return this;
         }
 
         public IActiveRenderer PlotPoint(float x, float y, int a, int r, int g, int b)
         {
             PrimitiveDrawing.DrawSegment(new(x, y), new(x + 1, y + 1), new(r, g, b, a));
-            //SpriteBatch.DrawPoint(x, y, new(r, g, b));
             return this;
         }
 
-        public IActiveRenderer DrawText(object text, float x, float y, int r, int g, int b)
+        public IActiveRenderer DrawText(object text, float x, float y, int a, int r, int g, int b)
         {
-            SpriteBatch.DrawString(RayGame.DefaultFont, text.ToString(), new(x, y), new(r, g, b));
+            SpriteBatch.DrawString(RayGame.DefaultFont, text.ToString(), new(x, y), new(r, g, b, a));
             return this;
         }
     }

@@ -9,17 +9,17 @@ namespace RayLib
     public class Map
     {
         private List<WallDef[,]> Layers { get; } = new();
-        private List<GameObject> StaticObjects { get; } = new();
+        private List<StaticObject> StaticObjects { get; } = new();
         private List<Actor> Actors { get; } = new();
 
-        public Vector2d Size { get; private set; }
+        public (int w, int h) Size { get; private set; }
         public int NumLayers => Layers.Count;
 
         public WallDef this[int l, double x, double y]
         {
             get => l < 0 || l >= NumLayers
-                || x < 0 || x >= Size.X
-                || y < 0 || y >= Size.Y
+                || x < 0 || x >= Size.w
+                || y < 0 || y >= Size.h
                 ? WallDef.Empty
                 : Layers[l][(int)x, (int)y];
             set => Layers[l][(int)x, (int)y] = value;
@@ -38,28 +38,32 @@ namespace RayLib
             }
         }
 
-        public void Update()
-            => Actors.ForEach(a => a.Act(this));
-
-        public GameObject SpawnObject(int x, int y, StaticObjectDef def)
+        private List<GameObject>?[,] GenerateObjectMap()
         {
-            var obj = new StaticObject(def, x, y);
-            StaticObjects.Add(obj);
-            return obj;
+            var ret = new List<GameObject>[Size.w, Size.h];
+
+            foreach (var obj in StaticObjects.Union<GameObject>(Actors))
+            {
+                var spot = ret[(int)obj.Location.X, (int)obj.Location.Y];
+                if (spot == null)
+                    spot = ret[(int)obj.Location.X, (int)obj.Location.Y] = new List<GameObject>();
+                spot.Add(obj);
+            }
+
+            return ret;
         }
 
-        public GameObject SpawnActor<T>(int x, int y, ActorDef def) where T : Actor, new()
+        public Step Update(GameObject requestingObject, int viewWidth, int viewHeight)
         {
-            var w = new T() { Def = def , Location = (x + .5, y + .5) };
-            Actors.Add(w);
-            return w;
-        }
+            Actors.ForEach(a => a.Act(this));
 
-        public IEnumerable<Intersection> GenerateIntersections(GameObject requestingObject, int viewWidth, int viewHeight)
-        {
+            var intersections = new List<Intersection>();
             var zbuffer = new double[viewWidth];
+            var objectsInSight = new HashSet<GameObject>();
+            var objectMap = GenerateObjectMap();
 
-            for (var x = 0;  x < viewWidth; x++)
+
+            for (var x = 0; x < viewWidth; x++)
             {
                 var (posX, posY) = requestingObject.Location;
                 var (mapX, mapY) = requestingObject.Location.Floor();
@@ -93,6 +97,10 @@ namespace RayLib
                     }
 
                     wall = this[0, mapX, mapY];
+                    var lineObjects = objectMap[(int)mapX, (int)mapY];
+                    if (lineObjects != null)
+                        foreach (var obj in lineObjects)
+                            objectsInSight.Add(obj);
                 }
 
                 var distance = !northWall
@@ -115,13 +123,11 @@ namespace RayLib
                 if (northWall && rayDir.Y < 0)
                     texX = textureWidth - texX - 1;
 
-                var intersection = new WallIntersection(wall, x, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - requestingObject.Location).Atan2());
-
-                yield return intersection;
-                zbuffer[x] = intersection.Distance;
+                zbuffer[x] = distance;
+                intersections.Add(new WallIntersection(wall, x, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - requestingObject.Location).Atan2()));
             }
 
-            foreach (var obj in StaticObjects.Union(Actors).OrderByDescending(o => o.Location.UnscaledDistance(requestingObject.Location)))
+            foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(requestingObject.Location)))
             {
                 var (planeX, planeY) = requestingObject.Plane;
                 var (dirX, dirY) = requestingObject.Direction;
@@ -135,21 +141,21 @@ namespace RayLib
                 var spriteScreenX = (int)((viewWidth / 2) * (1 + transformX / transformY));
 
                 var spriteHeight = (int)(viewHeight / transformY).Abs();
-                
+
                 var drawStartY = -spriteHeight / 2 + viewHeight / 2;
-                if (drawStartY < 0) 
+                if (drawStartY < 0)
                     drawStartY = 0;
                 var drawEndY = spriteHeight / 2 + viewHeight / 2;
-                if (drawEndY >= viewHeight) 
+                if (drawEndY >= viewHeight)
                     drawEndY = viewHeight - 1;
 
                 //calculate width of the sprite
                 var spriteWidth = (int)(viewHeight / transformY).Abs();
                 var drawStartX = -spriteWidth / 2 + spriteScreenX;
-                if (drawStartX < 0) 
+                if (drawStartX < 0)
                     drawStartX = 0;
                 var drawEndX = spriteWidth / 2 + spriteScreenX;
-                if (drawEndX >= viewWidth) 
+                if (drawEndX >= viewWidth)
                     drawEndX = viewWidth - 1;
 
                 var angle = locationDelta.Atan2();
@@ -158,9 +164,27 @@ namespace RayLib
                     var textureWidth = (int)obj.Def.DrawSize.W;
                     var texX = (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureWidth / spriteWidth;
                     if (transformY > 0 && stripe > 0 && stripe < viewWidth && transformY < zbuffer[stripe])
-                        yield return new ObjectIntersection(obj, stripe, texX, drawStartY, drawEndY, transformY, spriteHeight, angle);
+                    {
+                        intersections.Add(new ObjectIntersection(obj, stripe, texX, drawStartY, drawEndY, transformY, spriteHeight, angle));
+                    }
                 }
             }
+
+            return new Step(intersections, objectMap, objectsInSight, new[] { zbuffer });
+        }
+
+        public GameObject SpawnObject(int x, int y, StaticObjectDef def)
+        {
+            var obj = new StaticObject(def, x, y);
+            StaticObjects.Add(obj);
+            return obj;
+        }
+
+        public GameObject SpawnActor<T>(int x, int y, ActorDef def) where T : Actor, new()
+        {
+            var w = new T() { Def = def , Location = (x + .5, y + .5) };
+            Actors.Add(w);
+            return w;
         }
     }
 }

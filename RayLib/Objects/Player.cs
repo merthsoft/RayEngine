@@ -4,6 +4,8 @@ namespace RayLib.Objects
 {
     public class Player : GameObject
     {
+        public override bool Blocking => true;
+
         public Player(Def def) : base(def)
         {
 
