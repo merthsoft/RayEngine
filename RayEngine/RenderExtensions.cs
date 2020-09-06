@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using RayLib;
-using RayLib.Defs;
-using RayLib.Objects;
+using RayLib.Intersections;
 using System.Collections.Generic;
 
 namespace RayEngine
@@ -20,41 +19,8 @@ namespace RayEngine
                         .PlotPoint(x, y + viewHeight / 2, 255, 64 + y/3, 64 + y/3, 64 + y/3);
 
             foreach (var intersection in intersections)
-            {
-                if (intersection is WallIntersection wall)
-                    screen.RenderWallTexture(wall, viewHeight);
-                else if (intersection is ObjectIntersection obj)
-                    screen.RenderObjectTexture(obj, viewHeight);
-            }
+                intersection.Render(screen, viewHeight);
             return screen;
-        }
-
-        private static void RenderWallTexture(this IActiveRenderer screen, WallIntersection wall, int viewHeight)
-            => RenderTexture(screen, wall, viewHeight, wall.NorthWall ? wall.WallDef.NorthSouthTexture : wall.WallDef.EastWestTexture);
-
-        private static void RenderObjectTexture(this IActiveRenderer screen, ObjectIntersection obj, int viewHeight)
-        {
-            if (obj.Def is StaticObjectDef staticObj)
-                RenderTexture(screen, obj, viewHeight, staticObj.Texture);
-            else if (obj.Object is Actor a)
-                RenderTexture(screen, obj, viewHeight, a.CurrentTexture);
-        }
-
-        private static void RenderTexture(IActiveRenderer screen, Intersection intersection, int viewHeight, RayTexture texture)
-        {
-            var column = texture[intersection.TextureX];
-            var step = (double)intersection.Def.DrawSize.H / (double)intersection.Height;
-            var texPos = (intersection.Top - viewHeight / 2 + intersection.Height / 2) * step;
-            
-            var textureHeight = (int)intersection.Def.DrawSize.H - 1;
-            var distanceScale = (int)(6 * intersection.Distance);
-            for (var y = intersection.Top; y < intersection.Bottom; y++)
-            {
-                var texY = (int)texPos & textureHeight;
-                texPos += step;
-                (var a, var r, var g, var b) = column[texY];
-                screen.PlotPoint(intersection.ScreenX, y, a, r - distanceScale, g - distanceScale, b - distanceScale);
-            }
         }
     }
 }

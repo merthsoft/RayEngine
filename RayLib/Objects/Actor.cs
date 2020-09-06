@@ -6,7 +6,6 @@ namespace RayLib.Objects
     {
         public int TextureIndex { get; set; }
         public ActorDef ActorDef => (Def as ActorDef)!;
-        public RayTexture CurrentTexture => ActorDef.Textures[TextureIndex];
 
         protected Actor()
             : base(ActorDef.Empty) { }
@@ -17,5 +16,6 @@ namespace RayLib.Objects
         }
 
         public abstract void Act(Map map);
+        public override RayTexture GetTexture(double viewAngle) => ActorDef.Textures[TextureIndex];
     }
 }

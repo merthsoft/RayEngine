@@ -1,4 +1,5 @@
 ﻿using RayLib.Defs;
+using RayLib.Intersections;
 using RayLib.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,7 @@ namespace RayLib
 
         public GameObject SpawnObject(int x, int y, StaticObjectDef def)
         {
-            var obj = new GameObject(def) { Location = (x + .5, y + .5) };
+            var obj = new StaticObject(def, x, y);
             StaticObjects.Add(obj);
             return obj;
         }
@@ -114,7 +115,7 @@ namespace RayLib
                 if (northWall && rayDir.Y < 0)
                     texX = textureWidth - texX - 1;
 
-                var intersection = new WallIntersection(wall, x, texX, drawStart, drawStart + lineHeight, distance, lineHeight, northWall);
+                var intersection = new WallIntersection(wall, x, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - requestingObject.Location).Atan2());
 
                 yield return intersection;
                 zbuffer[x] = intersection.Distance;
@@ -124,7 +125,8 @@ namespace RayLib
             {
                 var (planeX, planeY) = requestingObject.Plane;
                 var (dirX, dirY) = requestingObject.Direction;
-                var (spriteX, spriteY) = (obj.Location - requestingObject.Location) - requestingObject.Direction * .2;
+                var locationDelta = obj.Location - requestingObject.Location;
+                var (spriteX, spriteY) = locationDelta - requestingObject.Direction * .2;
                 var invDet = 1.0 / (planeX * dirY - dirX * planeY);
 
                 var transformX = invDet * (dirY * spriteX - dirX * spriteY);
@@ -150,12 +152,13 @@ namespace RayLib
                 if (drawEndX >= viewWidth) 
                     drawEndX = viewWidth - 1;
 
+                var angle = locationDelta.Atan2();
                 for (int stripe = drawStartX; stripe < drawEndX; stripe++)
                 {
                     var textureWidth = (int)obj.Def.DrawSize.W;
                     var texX = (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureWidth / spriteWidth;
                     if (transformY > 0 && stripe > 0 && stripe < viewWidth && transformY < zbuffer[stripe])
-                        yield return new ObjectIntersection(obj, stripe, texX, drawStartY, drawEndY, transformY, spriteHeight);
+                        yield return new ObjectIntersection(obj, stripe, texX, drawStartY, drawEndY, transformY, spriteHeight, angle);
                 }
             }
         }

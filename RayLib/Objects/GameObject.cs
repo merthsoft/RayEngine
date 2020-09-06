@@ -1,8 +1,8 @@
 ﻿using RayLib.Defs;
 
-namespace RayLib
+namespace RayLib.Objects
 {
-    public class GameObject
+    public abstract class GameObject
     {
         public Def Def { get; set; }
 
@@ -12,5 +12,7 @@ namespace RayLib
 
         public GameObject(Def def)
             => Def = def;
+
+        public abstract RayTexture GetTexture(double viewAngle);
     }
 }

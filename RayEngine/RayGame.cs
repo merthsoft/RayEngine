@@ -6,6 +6,8 @@ using MonoGame.Extended.VectorDraw;
 using RayEngine.Actors;
 using RayLib;
 using RayLib.Defs;
+using RayLib.Intersections;
+using RayLib.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +29,7 @@ namespace RayEngine
         private FramesPerSecondCounter FramesPerSecondCounter { get; } = new();
 
         private Map Map { get; } = new(24, 24, 1);
-        private GameObject Player { get; } = new GameObject(Def.Empty)
+        private Player Player { get; } = new Player(Def.Empty)
         {
             Location = (1.5, 1.5),
             Direction = (1, 0),
