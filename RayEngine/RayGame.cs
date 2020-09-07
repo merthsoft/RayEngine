@@ -6,7 +6,6 @@ using MonoGame.Extended.VectorDraw;
 using RayEngine.Actors;
 using RayLib;
 using RayLib.Defs;
-using RayLib.Intersections;
 using RayLib.Objects;
 using System;
 using System.Collections.Generic;
@@ -27,8 +26,8 @@ namespace RayEngine
 
         private FramesPerSecondCounter FramesPerSecondCounter { get; } = new();
 
-        private Step? Step { get; set; } = null;
-        private Map Map { get; } = new(24, 24, 1);
+        private Map Map { get; set; } = null!;
+        private Step? Step { get; set; }
         private Player Player { get; } = new Player(Def.Empty)
         {
             Location = (1.5, 1.5),
@@ -46,47 +45,6 @@ namespace RayEngine
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             IsFixedTimeStep = false;
-        }
-
-        private void StringToMap(string s)
-        {
-            var well = new StaticObjectDef(
-                name: "GreyWellFull", blocking: true, 
-                texture: Content.Load<RayTexture>("Sprites/Static/GreyWellFull"));
-            var bloodyWell = new StaticObjectDef(
-                name: "GreyWellBlood", blocking: true, 
-                texture: Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
-            var vines = new StaticObjectDef(
-                name: "Vines", blocking: false, 
-                Content.Load<RayTexture>("Sprites/Static/Vines"));
-
-            var rat = new ActorDef("Rat", Content.Load<RayTexture>("Sprites/Actors/Rat/1"));
-            var melon = new ActorDef("Melon", Content.Load<RayTexture>("Sprites/Actors/WaterMelon/1"));
-
-            var i = 0;
-            foreach (var line in s.Split('\n').Select(s => s.Trim()))
-            {
-                var j = 0;
-                foreach (var c in line)
-                {
-                    if (char.IsDigit(c))
-                        Map[0, i, j] = WallDefs[0];  // TODO: Parse lol
-                    else if (c == '*')
-                        Map.SpawnObject(i, j, well);
-                    else if (c == '~')
-                        Map.SpawnObject(i, j, vines);
-                    else if (c == 'x')
-                        Map.SpawnObject(i, j, bloodyWell);
-                    else if (c == 'r')
-                        Map.SpawnActor<Wanderer>(i, j, rat);
-                    else if (c == '+')
-                        Map.SpawnActor<Wanderer>(i, j, melon);
-                    else
-                        Map[0, i, j] = WallDef.Empty;
-                    j++;
-                }
-                i++;
-            }
         }
 
         protected override void Initialize()
@@ -116,31 +74,64 @@ namespace RayEngine
             CompassTextures[3] = Content.Load<Texture2D>("Ux/Compass/3");
 
 
-            StringToMap(
-                @"111111111111111111111111
-                  1                      1
-                  1        *             1
-                  1                      1
-                  1     2222222223 3 3   1
-                  1r+   2       2        1
-                  1     2 r     23   3   1
-                  1     2       2        1
-                  1    *22 2222223 3 3   1
-                  1                      1
-                  1                      1
-                  1                      1
-                  1                      1
-                  1                      1
-                  1                      1
-                  1                      1
-                  14~444444              1
-                  14 4    4              1
-                  14 ~ 5 x4              1
-                  14 4    4              1
-                  14 444444              1
-                  14      ~              1
-                  144444444              1
-                  111111111111111111111111");
+            var well = new StaticObjectDef(
+                name: "GreyWellFull", blocking: true,
+                texture: Content.Load<RayTexture>("Sprites/Static/GreyWellFull"));
+            var bloodyWell = new StaticObjectDef(
+                name: "GreyWellBlood", blocking: true,
+                texture: Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
+            var vines = new StaticObjectDef(
+                name: "Vines", blocking: false,
+                Content.Load<RayTexture>("Sprites/Static/Vines"));
+
+            var rat = new ActorDef("Rat", Content.Load<RayTexture>("Sprites/Actors/Rat/1"));
+            var melon = new ActorDef("Melon", Content.Load<RayTexture>("Sprites/Actors/WaterMelon/1"));
+            var atmBucket = new ActorDef("Atm", Content.Load<RayTexture>("Sprites/Actors/AtmBucket/1"));
+
+            Map = new Map(24, 24,
+                    simpleMap: @"111111111111111111111111
+                                 1                      1
+                                 1        *             1
+                                 1                      1
+                                 1     2222222223 3 3   1
+                                 1r+   2       2        1
+                                 1     2 r     23   3   1
+                                 1     2       2        1
+                                 1    *22 2222223 3 3   1
+                                 1                      1
+                                 1                      1
+                                 1                      1
+                                 1                      1
+                                 1                      1
+                                 1                      1
+                                 1                      1
+                                 14~444444              1
+                                 14 4    4              1
+                                 14 ~ 5 x4              1
+                                 14 4   a4              1
+                                 14 444444              1
+                                 14      ~              1
+                                 144444444              1
+                                 111111111111111111111111",
+                    generator: (Map map, int i, int j, char c) =>
+                    {
+                        if (char.IsDigit(c))
+                            map.SetWall(0, i, j, WallDefs[0]);  // TODO: Parse lol
+                        else if (c == '*')
+                            map.SpawnObject(0, i, j, well);
+                        else if (c == '~')
+                            map.SpawnObject(0, i, j, vines);
+                        else if (c == 'x')
+                            map.SpawnObject(0, i, j, bloodyWell);
+                        //else if (c == 'r')
+                        //    map.SpawnActor<Wanderer>(0, i, j, rat);
+                        //else if (c == '+')
+                        //    map.SpawnActor<Wanderer>(0, i, j, melon);
+                        else if (c == 'a')
+                            map.SpawnActor<Follower>(0, i, j, atmBucket);
+                        else
+                            map.SetWall(0, i, j, WallDef.Empty);
+                    });
         }
 
         protected override void Update(GameTime gameTime)
@@ -201,9 +192,7 @@ namespace RayEngine
                 planeY = oldPlaneX * rotSpeed.Sin() + planeY * rotSpeed.Cos();
             }
 
-            var objectMap = Step.ObjectMap[(int)posX, (int)posY];
-            if (Map[0, posX, posY] == WallDef.Empty
-                &&  objectMap?.FirstOrDefault(o => o.Blocking) == null)
+            if (!Map.BlockedAt(0, (int)posX, (int)posY))
             {
                 Player.Location = (posX, posY).Round();
                 Player.Direction = (dirX, dirY).Round();

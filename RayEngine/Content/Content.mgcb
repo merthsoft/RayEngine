@@ -23,6 +23,11 @@
 /processorParam:TextureFormat=Compressed
 /build:DefaultFont.spritefont
 
+#begin Sprites/Actors/AtmBucket/1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Actors/AtmBucket/1.bmp
+
 #begin Sprites/Actors/Rat/1.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor

@@ -1,74 +1,94 @@
 ﻿using RayLib.Defs;
 using RayLib.Intersections;
 using RayLib.Objects;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace RayLib
 {
-    public class Map
+    public class Map : INeighborable<GameVector>
     {
-        private List<WallDef[,]> Layers { get; } = new();
+        private List<List<List<WallDef>>> Walls { get; } = new();
+        private List<List<List<List<GameObject>>>> ObjectMap { get; } = new();
         private List<StaticObject> StaticObjects { get; } = new();
         private List<Actor> Actors { get; } = new();
 
         public (int w, int h) Size { get; private set; }
-        public int NumLayers => Layers.Count;
+        public int NumLayers => Walls.Count;
 
-        public WallDef this[int l, double x, double y]
+        public Map(int width, int height, string simpleMap, Action<Map, int, int, char> generator)
+            : this(width, height, 1)
         {
-            get => l < 0 || l >= NumLayers
-                || x < 0 || x >= Size.w
-                || y < 0 || y >= Size.h
-                ? WallDef.Empty
-                : Layers[l][(int)x, (int)y];
-            set => Layers[l][(int)x, (int)y] = value;
+            var i = 0;
+            foreach (var line in simpleMap.Split('\n').Select(s => s.Trim()))
+            {
+                var j = 0;
+                foreach (var c in line)
+                {
+                    generator(this, i, j, c);
+                    j++;
+                }
+                i++;
+            }
         }
-
+        
         public Map(int width, int height, int layers)
         {
             Size = (width, height);
             for (var l = 0; l < layers; l++)
             {
-                var arr = new WallDef[width, height];
+                var wallLayer = new List<List<WallDef>>();
+                var objectLayer = new List<List<List<GameObject>>>();
                 for (var x = 0; x < width; x++)
+                {
+                    var wallSlice = new List<WallDef>();
+                    var objectSlice = new List<List<GameObject>>();
                     for (var y = 0; y < height; y++)
-                        arr[x, y] = WallDef.Empty;
-                Layers.Add(arr);
+                    {
+                        wallSlice.Add(WallDef.Empty);
+                        objectSlice.Add(new List<GameObject>());
+                    }
+                    wallLayer.Add(wallSlice);
+                    objectLayer.Add(objectSlice);
+                }
+                Walls.Add(wallLayer);
+                ObjectMap.Add(objectLayer);
             }
         }
 
-        private List<GameObject>?[,] GenerateObjectMap()
+        private void AddToObjectMap(GameObject obj)
         {
-            var ret = new List<GameObject>[Size.w, Size.h];
+            var spot = ObjectMap[0][(int)obj.Location.X][(int)obj.Location.Y];
+            spot.Add(obj);
+        }
 
-            foreach (var obj in StaticObjects.Union<GameObject>(Actors))
+        private void RemoveFromObjectMap(GameObject obj) 
+        {
+            var spot = ObjectMap[0][(int)obj.Location.X][(int)obj.Location.Y];
+            spot.Remove(obj);
+        }
+
+        public Step Update(Player player, int viewWidth, int viewHeight)
+        {
+            Actors.ForEach(a =>
             {
-                var spot = ret[(int)obj.Location.X, (int)obj.Location.Y];
-                if (spot == null)
-                    spot = ret[(int)obj.Location.X, (int)obj.Location.Y] = new List<GameObject>();
-                spot.Add(obj);
-            }
-
-            return ret;
-        }
-
-        public Step Update(GameObject requestingObject, int viewWidth, int viewHeight)
-        {
-            Actors.ForEach(a => a.Act(this));
+                RemoveFromObjectMap(a);
+                a.Act(this, player);
+                AddToObjectMap(a);
+            });
 
             var intersections = new List<Intersection>();
             var zbuffer = new double[viewWidth];
             var objectsInSight = new HashSet<GameObject>();
-            var objectMap = GenerateObjectMap();
-
 
             for (var x = 0; x < viewWidth; x++)
             {
-                var (posX, posY) = requestingObject.Location;
-                var (mapX, mapY) = requestingObject.Location.Floor();
+                var (posX, posY) = player.Location;
+                var (mapX, mapY) = player.Location.Floor();
                 var cameraX = 2.0 * x / viewWidth - 1.0;
-                var rayDir = requestingObject.Direction + requestingObject.Plane * cameraX;
+                var rayDir = player.Direction + player.Plane * cameraX;
                 var (deltaDistX, deltaDistY) = (1 / rayDir).Abs();
                 var northWall = false;
 
@@ -96,12 +116,17 @@ namespace RayLib
                         northWall = true;
                     }
 
-                    wall = this[0, mapX, mapY];
-                    var lineObjects = objectMap[(int)mapX, (int)mapY];
-                    if (lineObjects != null)
-                        foreach (var obj in lineObjects)
-                            objectsInSight.Add(obj);
+                    if (mapX < 0 || mapY < 0 || mapX > Size.w || mapY > Size.h)
+                        break;
+
+                    wall = Walls[0][(int)mapX][(int)mapY];
+                    var lineObjects = ObjectMap[0][(int)mapX][(int)mapY];
+                    foreach (var obj in lineObjects)
+                        objectsInSight.Add(obj);
                 }
+
+                if (wall == WallDef.Empty)
+                    break;
 
                 var distance = !northWall
                             ? (mapX - posX + (1.0 - stepX) / 2.0) / rayDir.X
@@ -124,15 +149,15 @@ namespace RayLib
                     texX = textureWidth - texX - 1;
 
                 zbuffer[x] = distance;
-                intersections.Add(new WallIntersection(wall, x, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - requestingObject.Location).Atan2()));
+                intersections.Add(new WallIntersection(wall, x, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2()));
             }
 
-            foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(requestingObject.Location)))
+            foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
             {
-                var (planeX, planeY) = requestingObject.Plane;
-                var (dirX, dirY) = requestingObject.Direction;
-                var locationDelta = obj.Location - requestingObject.Location;
-                var (spriteX, spriteY) = locationDelta - requestingObject.Direction * .2;
+                var (planeX, planeY) = player.Plane;
+                var (dirX, dirY) = player.Direction;
+                var locationDelta = obj.Location - player.Location;
+                var (spriteX, spriteY) = locationDelta - player.Direction * .2;
                 var invDet = 1.0 / (planeX * dirY - dirX * planeY);
 
                 var transformX = invDet * (dirY * spriteX - dirX * spriteY);
@@ -170,21 +195,48 @@ namespace RayLib
                 }
             }
 
-            return new Step(intersections, objectMap, objectsInSight, new[] { zbuffer });
+            return new Step(intersections, objectsInSight, new[] { zbuffer });
         }
 
-        public GameObject SpawnObject(int x, int y, StaticObjectDef def)
+        public void SetWall(int layer, int x, int y, WallDef wall)
+            => Walls[layer][x][y] = wall;
+
+        public GameObject SpawnObject(int layer, int x, int y, StaticObjectDef def)
         {
             var obj = new StaticObject(def, x, y);
             StaticObjects.Add(obj);
+            AddToObjectMap(obj);
             return obj;
         }
 
-        public GameObject SpawnActor<T>(int x, int y, ActorDef def) where T : Actor, new()
+        public GameObject SpawnActor<T>(int layer, int x, int y, ActorDef def) where T : Actor, new()
         {
             var w = new T() { Def = def , Location = (x + .5, y + .5) };
             Actors.Add(w);
+            AddToObjectMap(w);
             return w;
+        }
+
+        public bool BlockedAt(int layer, int x, int y)
+        {
+            if (x < 0 || y < 0 || x >= Size.w || y >= Size.h)
+                return true;
+            if (Walls[layer][x][y] != WallDef.Empty)
+                return true;
+            return ObjectMap[layer][x][y].Any(o => o.Blocking);
+        }
+
+        public IEnumerable<GameVector> FindPath(GameVector pos1, GameVector pos2)
+            => AStar.Search(pos1, pos2, this, (p1, p2) => p1.UnscaledDistance(p2));
+        
+        public IEnumerable<GameVector> GetNeighbors(GameVector root)
+        {
+            foreach (var direction in GameVector.CardinalDirections8)
+            {
+                var n = root + direction;
+                if (!BlockedAt(0, (int)n.X, (int)n.Y))
+                    yield return n;
+            }
         }
     }
 }

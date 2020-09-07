@@ -17,9 +17,9 @@ namespace RayEngine.Actors
         public Wanderer(ActorDef actorDef)
             : base(actorDef) { }
 
-        public override void Act(Map map)
+        public override void Act(Map map, Player player)
         {
-             TurnTimer--;
+            TurnTimer--;
             WalkTimer--;
 
             (var posX, var posY) = Location;
@@ -49,9 +49,10 @@ namespace RayEngine.Actors
                 TurnTimer = Random.Next(10, 25);
             }
 
-            if (map[0, posX, posY] == WallDef.Empty)
+            (posX, posY) = (posX, posY).Round();
+            if (!map.BlockedAt(0, (int)posX, (int)posY))
             {
-                Location = (posX, posY).Round();
+                Location = (posX, posY);
                 Direction = (dirX, dirY).Round();
                 Plane = (planeX, planeY).Round();
             }
