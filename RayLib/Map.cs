@@ -3,7 +3,6 @@ using RayLib.Intersections;
 using RayLib.Objects;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 namespace RayLib
@@ -83,9 +82,12 @@ namespace RayLib
             var zbuffer = new double[viewWidth];
             var objectsInSight = new HashSet<GameObject>();
 
+            var (posX, posY) = player.Location - player.Direction/2;
+            var (planeX, planeY) = player.Plane;
+            var (dirX, dirY) = player.Direction;
+
             for (var x = 0; x < viewWidth; x++)
             {
-                var (posX, posY) = player.Location;
                 var (mapX, mapY) = player.Location.Floor();
                 var cameraX = 2.0 * x / viewWidth - 1.0;
                 var rayDir = player.Direction + player.Plane * cameraX;
@@ -154,9 +156,7 @@ namespace RayLib
 
             foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
             {
-                var (planeX, planeY) = player.Plane;
-                var (dirX, dirY) = player.Direction;
-                var locationDelta = obj.Location - player.Location;
+                var locationDelta = obj.Location - (posX, posY);
                 var (spriteX, spriteY) = locationDelta - player.Direction * .2;
                 var invDet = 1.0 / (planeX * dirY - dirX * planeY);
 
@@ -217,21 +217,27 @@ namespace RayLib
             return w;
         }
 
-        public bool BlockedAt(int layer, int x, int y)
+        public void ClearPlayer(Player player)
+            => RemoveFromObjectMap(player);
+
+        public bool BlockedAt(int layer, int x, int y, bool playerBlocks = true)
         {
             if (x < 0 || y < 0 || x >= Size.w || y >= Size.h)
                 return true;
             if (Walls[layer][x][y] != WallDef.Empty)
                 return true;
-            return ObjectMap[layer][x][y].Any(o => o.Blocking);
+            return ObjectMap[layer][x][y].Any(o => o is Player p ? o.Blocking && playerBlocks : o.Blocking);
         }
+
+        public void SetPlayer(Player player)
+            => AddToObjectMap(player);
 
         public IEnumerable<GameVector> FindPath(GameVector pos1, GameVector pos2)
             => AStar.Search(pos1, pos2, this, (p1, p2) => p1.UnscaledDistance(p2));
         
         public IEnumerable<GameVector> GetNeighbors(GameVector root)
         {
-            foreach (var direction in GameVector.CardinalDirections8)
+            foreach (var direction in GameVector.CardinalDirections4)
             {
                 var n = root + direction;
                 if (!BlockedAt(0, (int)n.X, (int)n.Y))

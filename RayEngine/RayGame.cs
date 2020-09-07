@@ -30,7 +30,7 @@ namespace RayEngine
         private Step? Step { get; set; }
         private Player Player { get; } = new Player(Def.Empty)
         {
-            Location = (1.5, 1.5),
+            Location = (2.5, 2.5),
             Direction = (1, 0),
             Plane = (0, .66),
         };
@@ -72,7 +72,6 @@ namespace RayEngine
             CompassTextures[1] = Content.Load<Texture2D>("Ux/Compass/4");
             CompassTextures[2] = Content.Load<Texture2D>("Ux/Compass/1");
             CompassTextures[3] = Content.Load<Texture2D>("Ux/Compass/3");
-
 
             var well = new StaticObjectDef(
                 name: "GreyWellFull", blocking: true,
@@ -192,12 +191,14 @@ namespace RayEngine
                 planeY = oldPlaneX * rotSpeed.Sin() + planeY * rotSpeed.Cos();
             }
 
+            Map.ClearPlayer(Player);
             if (!Map.BlockedAt(0, (int)posX, (int)posY))
             {
                 Player.Location = (posX, posY).Round();
                 Player.Direction = (dirX, dirY).Round();
                 Player.Plane = (planeX, planeY).Round();
             }
+            Map.SetPlayer(Player);
 
 
             return keyboardState;
@@ -208,7 +209,7 @@ namespace RayEngine
             Graphics.GraphicsDevice.Clear(Color.Black);
             GameScreen.Draw(0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight, 0, 0, 1,
                 activeRederer => activeRederer
-                    .RenderWorld(ViewWidth, ViewHeight, Step)
+                    .RenderWorld(ViewWidth, ViewHeight, Step!)
 
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
