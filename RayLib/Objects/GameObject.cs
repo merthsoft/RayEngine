@@ -7,7 +7,7 @@ namespace RayLib.Objects
         public Def Def { get; set; }
 
         public GameVector Location { get; set; } = GameVector.Zero;
-        public GameVector Direction { get; set; } = (1, 0);
+        public GameVector Direction { get; set; } = (0, 0);
         public GameVector Plane { get; set; } = (0, 0.66f);
 
         public abstract bool Blocking { get; }

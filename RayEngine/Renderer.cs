@@ -29,7 +29,7 @@ namespace RayEngine
 
         public IActiveRenderer DrawLine(float x1, float y1, float x2, float y2, int a, int r, int g, int b)
         {
-            PrimitiveDrawing.DrawSegment(new(x1, y1), new(x2, y2), new(r, g, b, a));
+            PrimitiveDrawing.DrawSegment(new(x1, y1), new(x2, y2), Color.FromNonPremultiplied(r, g, b, a));
             return this;
         }
 
@@ -41,7 +41,7 @@ namespace RayEngine
 
         public IActiveRenderer DrawText(object text, float x, float y, int a, int r, int g, int b)
         {
-            SpriteBatch.DrawString(RayGame.DefaultFont, text.ToString(), new(x, y), new(r, g, b, a));
+            SpriteBatch.DrawString(RayGame.DefaultFont, text.ToString(), new(x, y), Color.FromNonPremultiplied(r, g, b, a));
             return this;
         }
     }

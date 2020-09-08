@@ -4,6 +4,15 @@ namespace RayLib
 {
     public static class DoubleExtensions
     {
+        public static int CardinalDirection2Index(this double angle)
+            => angle <= 180 ? 0 : 1;
+
+        public static int CardinalDirection4Index(this double angle) 
+            => (int)(((angle + 30) % 360) / 60);
+        
+        public static int CardinalDirection8Index(this double angle) 
+            => (int)(((angle + 22.5) % 360) / 45);
+
         public static (double, double) Add(this (double, double) value, double additionalValue)
             => (value.Item1 + additionalValue, value.Item2 + additionalValue);
 

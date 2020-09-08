@@ -9,13 +9,13 @@ namespace RayLib
         public static GameVector Zero = new GameVector(0, 0);
         // TODO: These are wrong
         public static GameVector North = (0, -1);
-        public static GameVector NorthEast = (1, -1);
+        public static GameVector NorthEast = (.71, .71);
         public static GameVector East = (1, 0);
-        public static GameVector SouthEast = (1, 1);
+        public static GameVector SouthEast = (.71, -.71);
         public static GameVector South = (0, -1);
-        public static GameVector SouthWest = (-1, 1);
+        public static GameVector SouthWest = (-.71, -.71);
         public static GameVector West = (-1, 0);
-        public static GameVector NorthWest = (-1, -1);
+        public static GameVector NorthWest = (-.71, .71);
 
         public static GameVector[] CardinalDirections4 = new[] { East, North, West, South };
         public static GameVector[] CardinalDirections8 = new[] { East, NorthEast, North, NorthWest, West, SouthWest, South, SouthEast };
@@ -27,8 +27,8 @@ namespace RayLib
         public double Y { get; }
 
         public double Angle => Atan2().ToDegrees();
-        public int CardinalDirection4Index => (int)(((Angle + 30) % 360) / 60);
-        public int CardinalDirection8Index => (int)(((Angle + 22.5) % 360) / 45);
+        public int CardinalDirection4Index => Angle.CardinalDirection4Index();
+        public int CardinalDirection8Index => Angle.CardinalDirection8Index();
 
         public static GameVector operator +(GameVector lhs, GameVector rhs)
             => (lhs.X + rhs.X, lhs.Y + rhs.Y);

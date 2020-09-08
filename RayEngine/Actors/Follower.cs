@@ -23,9 +23,19 @@ namespace RayEngine.Actors
             if (MoveTimer == 0)
             {
                 MoveTimer = Random.Next(10, 50);
-                var newLocation = map.FindPath(Location, player.Location + player.Direction.Round(0)).FirstOrDefault();
+                var newLocation = map.FindPath(Location, player.Location).FirstOrDefault();
                 if (newLocation == null)
                     newLocation = Location + Direction;
+
+                if (newLocation == player.Location)
+                {
+                    player.ScreenFlash = (64, 0, 0);
+                    player.ScreenFlashDuration += 50;
+                    player.ScreenFlashDecay = 1;
+                }
+
+                if (map.BlockedAt(0, newLocation))
+                    newLocation = Location - Direction;
                 if (!map.BlockedAt(0, newLocation))
                     Location = newLocation;
             }

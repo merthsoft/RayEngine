@@ -169,6 +169,16 @@
 /processor:RayTextureProcessor
 /build:Walls/RedBricks1.bmp
 
+#begin Walls/GreyBricks0.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/GreyBricks0.bmp
+
+#begin Walls/GreyBricks1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/GreyBricks1.bmp
+
 #begin Walls/RedBricksMulticolored0.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor

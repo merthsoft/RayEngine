@@ -4,7 +4,6 @@ using RayLib.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 
 namespace RayLib
 {
@@ -94,7 +93,7 @@ namespace RayLib
                 var cameraX = 2.0 * x / viewWidth - 1.0;
                 var rayDir = player.Direction + player.Plane * cameraX;
                 var (deltaDistX, deltaDistY) = (1 / rayDir).Abs();
-                var northWall = false;
+                var eastWall = false;
 
                 (var stepX, var sideDistX) = rayDir.X < 0
                     ? (-1, (posX - mapX) * deltaDistX)
@@ -111,13 +110,13 @@ namespace RayLib
                     {
                         sideDistX += deltaDistX;
                         mapX += stepX;
-                        northWall = false;
+                        eastWall = false;
                     }
                     else
                     {
                         sideDistY += deltaDistY;
                         mapY += stepY;
-                        northWall = true;
+                        eastWall = true;
                     }
 
                     if (mapX < 0 || mapY < 0 || mapX > Size.w || mapY > Size.h)
@@ -132,7 +131,7 @@ namespace RayLib
                 if (wall == WallDef.Empty)
                     break;
 
-                var distance = !northWall
+                var distance = !eastWall
                             ? (mapX - posX + (1.0 - stepX) / 2.0) / rayDir.X
                             : (mapY - posY + (1.0 - stepY) / 2.0) / rayDir.Y;
 
@@ -140,28 +139,28 @@ namespace RayLib
 
                 var drawStart = (int)(-lineHeight / 2.0 + viewHeight / 2.0);
 
-                var wallX = !northWall
+                var wallX = !eastWall
                     ? posY + distance * rayDir.Y
                     : posX + distance * rayDir.X;
                 wallX -= (int)wallX;
 
                 var textureWidth = wall.DrawSize.W;
                 var texX = (int)(wallX * textureWidth);
-                if (!northWall && rayDir.X > 0)
+                if (!eastWall && rayDir.X > 0)
                     texX = textureWidth - texX - 1;
-                if (northWall && rayDir.Y < 0)
+                if (eastWall && rayDir.Y < 0)
                     texX = textureWidth - texX - 1;
 
                 zbuffer[screenX] = distance;
-                intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2()));
+                intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2(), !eastWall));
                 screenX++;
             }
 
             foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
             {
                 var locationDelta = obj.Location - (posX, posY);
-                var angle = locationDelta.Atan2();
-                var (spriteX, spriteY) = locationDelta - player.Direction * .2;
+                var angle = locationDelta.Atan2().ToDegrees();
+                var (spriteX, spriteY) = locationDelta - viewOffset * .7;
                 var invDet = 1.0 / (planeX * dirY - dirX * planeY);
 
                 var transformX = invDet * (dirY * spriteX - dirX * spriteY);
@@ -244,7 +243,7 @@ namespace RayLib
             foreach (var direction in GameVector.CardinalDirections8)
             {
                 var n = root + direction;
-                if (!BlockedAt(0, (int)n.X, (int)n.Y))
+                if (!BlockedAt(0, n, false))
                     yield return n;
             }
         }

@@ -82,8 +82,8 @@ namespace RayEngine
 
             // 3
             WallDefs.Add(new WallDef("Brown Bricks",
-                northSouthTexture: Content.Load<RayTexture>("Walls/Brown0"),
-                eastWestTexture: Content.Load<RayTexture>("Walls/Brown1")
+                northSouthTexture: Content.Load<RayTexture>("Walls/GreyBricks0"),
+                eastWestTexture: Content.Load<RayTexture>("Walls/GreyBricks1")
             ));
 
             // 4
@@ -105,10 +105,10 @@ namespace RayEngine
 
             var well = new StaticObjectDef(
                 name: "GreyWellFull", blocking: true,
-                texture: Content.Load<RayTexture>("Sprites/Static/GreyWellFull"));
+                Content.Load<RayTexture>("Sprites/Static/GreyWellFull"));
             var bloodyWell = new StaticObjectDef(
                 name: "GreyWellBlood", blocking: true,
-                texture: Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
+                Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
             var vines = new StaticObjectDef(
                 name: "Vines", blocking: false,
                 Content.Load<RayTexture>("Sprites/Static/Vines"));
@@ -124,9 +124,9 @@ namespace RayEngine
                                  0                      0
                                  0     0000000004 4 4   0
                                  0r+   0       0        0
-                                 0     0 a     0    5   0
+                                 0     0 a     0 a  5   0
                                  0     0       0        0
-                                 0    *00 0000004 4 4   0
+                                 0    *00~0000004 4 4   0
                                  0                      0
                                  0                      0
                                  0                      0
@@ -135,34 +135,36 @@ namespace RayEngine
                                  0                      0
                                  0                      0
                                  03~333333              0
-                                 03 3    3              0
-                                 03 ~ 2 x3              0
+                                 03 3    3  a           0
+                                 03 | 2 x3              0
                                  03 3   a3              0
                                  03 333333              0
-                                 03      ~              0
-                                 033333333              0
+                                 03a     ~              0
+                                 033333333           a  0
                                  000000000000000000000000",
                     generator: (Map map, int i, int j, char c) =>
                     {
                         if (char.IsDigit(c))
                         {
                             var wall = int.Parse(c.ToString());
-                            if (wall == 0 && Random.NextDouble() > .8)
-                                wall = 1;
+                            //if (wall == 0 && Random.NextDouble() > .8)
+                            //    wall = 1;
                             map.SetWall(0, i, j, WallDefs[wall]);
                         }
                         else if (c == '*')
                             map.SpawnObject(0, i, j, well);
                         else if (c == '~')
-                            map.SpawnObject(0, i, j, vines);
+                            map.SpawnObject(0, i, j, vines).Direction = GameVector.North;
+                        else if (c == '|')
+                            map.SpawnObject(0, i, j, vines).Direction = GameVector.East;
                         else if (c == 'x')
                             map.SpawnObject(0, i, j, bloodyWell);
                         //else if (c == 'r')
                         //    map.SpawnActor<Wanderer>(0, i, j, rat);
                         //else if (c == '+')
                         //    map.SpawnActor<Wanderer>(0, i, j, melon);
-                        else if (c == 'a')
-                            map.SpawnActor<Follower>(0, i, j, atmBucket);
+                        //else if (c == 'a')
+                        //    map.SpawnActor<Follower>(0, i, j, atmBucket);
                         else
                             map.SetWall(0, i, j, WallDef.Empty);
                     });
@@ -170,6 +172,7 @@ namespace RayEngine
 
         protected override void Update(GameTime gameTime)
         {
+            Player.Update();
             if (Step != null)
                 PreviousState = HandleKeyboardInput();
             Step = Map.Update(Player, ViewWidth, ViewHeight, Player.Direction / 2);
@@ -235,6 +238,7 @@ namespace RayEngine
             GameScreen.Draw(0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight, 0, 0, 1,
                 activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
+                    .RenderScreenFlash(ViewWidth, ViewHeight, Player)
                     .DrawText($"{Player.Location} {Player.Direction} {Player.Plane} {GameVector.CardinalDirections8Names[Player.Direction.CardinalDirection8Index]}", 0, 0, 255, 200, 200, 255)
 
             );

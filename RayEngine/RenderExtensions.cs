@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using RayLib;
+using RayLib.Objects;
+using System;
 
 namespace RayEngine
 {
@@ -17,6 +19,19 @@ namespace RayEngine
 
             foreach (var intersection in step.Intersections)
                 intersection.Render(screen, viewHeight);
+
+            return screen;
+        }
+
+        public static IActiveRenderer RenderScreenFlash(this IActiveRenderer screen, int viewWidth, int viewHeight, Player player)
+        {
+            if (player.ScreenFlashDuration == 0)
+                return screen;
+            (var r, var g, var b) = player.ScreenFlash;
+            var a = (int)Math.Min(240, player.ScreenFlashDuration);
+            for (var y = 0; y < viewHeight; y++)
+                screen
+                    .DrawLine(0, y, viewWidth, y, a, r, g, b);
 
             return screen;
         }
