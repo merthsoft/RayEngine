@@ -4,6 +4,7 @@ using RayLib.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 
 namespace RayLib
 {
@@ -69,7 +70,7 @@ namespace RayLib
             spot.Remove(obj);
         }
 
-        public Step Update(Player player, int viewWidth, int viewHeight)
+        public Step Update(Player player, int viewWidth, int viewHeight, GameVector viewOffset)
         {
             Actors.ForEach(a =>
             {
@@ -82,11 +83,12 @@ namespace RayLib
             var zbuffer = new double[viewWidth];
             var objectsInSight = new HashSet<GameObject>();
 
-            var (posX, posY) = player.Location - player.Direction/2;
+            var (posX, posY) = player.Location - viewOffset;
             var (planeX, planeY) = player.Plane;
             var (dirX, dirY) = player.Direction;
 
-            for (var x = 0; x < viewWidth; x++)
+            var screenX = 0;
+            for (var x = viewWidth - 1; x >= 0; x--)
             {
                 var (mapX, mapY) = player.Location.Floor();
                 var cameraX = 2.0 * x / viewWidth - 1.0;
@@ -150,13 +152,15 @@ namespace RayLib
                 if (northWall && rayDir.Y < 0)
                     texX = textureWidth - texX - 1;
 
-                zbuffer[x] = distance;
-                intersections.Add(new WallIntersection(wall, x, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2()));
+                zbuffer[screenX] = distance;
+                intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2()));
+                screenX++;
             }
 
             foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
             {
                 var locationDelta = obj.Location - (posX, posY);
+                var angle = locationDelta.Atan2();
                 var (spriteX, spriteY) = locationDelta - player.Direction * .2;
                 var invDet = 1.0 / (planeX * dirY - dirX * planeY);
 
@@ -164,7 +168,6 @@ namespace RayLib
                 var transformY = invDet * (-planeY * spriteX + planeX * spriteY);
 
                 var spriteScreenX = (int)((viewWidth / 2) * (1 + transformX / transformY));
-
                 var spriteHeight = (int)(viewHeight / transformY).Abs();
 
                 var drawStartY = -spriteHeight / 2 + viewHeight / 2;
@@ -182,16 +185,14 @@ namespace RayLib
                 var drawEndX = spriteWidth / 2 + spriteScreenX;
                 if (drawEndX >= viewWidth)
                     drawEndX = viewWidth - 1;
-
-                var angle = locationDelta.Atan2();
-                for (int stripe = drawStartX; stripe < drawEndX; stripe++)
+                
+                for (var stripe = drawStartX; stripe < drawEndX; stripe++)
                 {
+                    screenX = viewWidth - stripe - 1;
                     var textureWidth = (int)obj.Def.DrawSize.W;
-                    var texX = (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureWidth / spriteWidth;
-                    if (transformY > 0 && stripe > 0 && stripe < viewWidth && transformY < zbuffer[stripe])
-                    {
-                        intersections.Add(new ObjectIntersection(obj, stripe, texX, drawStartY, drawEndY, transformY, spriteHeight, angle));
-                    }
+                    var texX = textureWidth - (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureWidth / spriteWidth - 1;
+                    if (transformY > 0 && screenX > 0 && screenX < viewWidth && transformY < zbuffer[screenX])
+                        intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStartY, drawEndY, transformY, spriteHeight, angle));
                 }
             }
 
@@ -220,6 +221,9 @@ namespace RayLib
         public void ClearPlayer(Player player)
             => RemoveFromObjectMap(player);
 
+        public bool BlockedAt(int layer, GameVector location, bool playerBlocks = true)
+            => BlockedAt(layer, (int)location.X, (int)location.Y, playerBlocks);
+
         public bool BlockedAt(int layer, int x, int y, bool playerBlocks = true)
         {
             if (x < 0 || y < 0 || x >= Size.w || y >= Size.h)
@@ -237,7 +241,7 @@ namespace RayLib
         
         public IEnumerable<GameVector> GetNeighbors(GameVector root)
         {
-            foreach (var direction in GameVector.CardinalDirections4)
+            foreach (var direction in GameVector.CardinalDirections8)
             {
                 var n = root + direction;
                 if (!BlockedAt(0, (int)n.X, (int)n.Y))

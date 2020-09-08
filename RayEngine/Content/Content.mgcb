@@ -53,6 +53,18 @@
 /processor:RayTextureProcessor
 /build:Sprites/Static/Vines.bmp
 
+#begin Ux/Compass/0.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Ux/Compass/0.png
+
 #begin Ux/Compass/1.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -137,17 +149,15 @@
 /processorParam:TextureFormat=Color
 /build:Ux/Compass/7.png
 
-#begin Ux/Compass/8.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Ux/Compass/8.png
+#begin Walls/Brown0.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/Brown0.bmp
+
+#begin Walls/Brown1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/Brown1.bmp
 
 #begin Walls/RedBricks0.bmp
 /importer:ImageImporter
@@ -158,4 +168,44 @@
 /importer:ImageImporter
 /processor:RayTextureProcessor
 /build:Walls/RedBricks1.bmp
+
+#begin Walls/RedBricksMulticolored0.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/RedBricksMulticolored0.bmp
+
+#begin Walls/RedBricksMulticolored1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/RedBricksMulticolored1.bmp
+
+#begin Walls/RedBricksPlanet0.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/RedBricksPlanet0.bmp
+
+#begin Walls/RedBricksPlanet1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/RedBricksPlanet1.bmp
+
+#begin Walls/WoodenWall0.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/WoodenWall0.bmp
+
+#begin Walls/WoodenWall1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/WoodenWall1.bmp
+
+#begin Walls/WoodenWallWithSign0.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/WoodenWallWithSign0.bmp
+
+#begin Walls/WoodenWallWithSign1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/WoodenWallWithSign1.bmp
 

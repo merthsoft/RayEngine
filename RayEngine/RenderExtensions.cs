@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using RayLib;
-using System.Linq;
 
 namespace RayEngine
 {

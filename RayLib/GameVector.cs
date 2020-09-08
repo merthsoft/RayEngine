@@ -7,6 +7,7 @@ namespace RayLib
     public record GameVector : IEquatable<GameVector>
     {
         public static GameVector Zero = new GameVector(0, 0);
+        // TODO: These are wrong
         public static GameVector North = (0, -1);
         public static GameVector NorthEast = (1, -1);
         public static GameVector East = (1, 0);
@@ -19,8 +20,15 @@ namespace RayLib
         public static GameVector[] CardinalDirections4 = new[] { East, North, West, South };
         public static GameVector[] CardinalDirections8 = new[] { East, NorthEast, North, NorthWest, West, SouthWest, South, SouthEast };
 
+        public static string[] CardinalDirections4Names = new[] { "East", "North", "West", "South" };
+        public static string[] CardinalDirections8Names = new[] { "East", "NorthEast", "North", "NorthWest", "West", "SouthWest", "South", "SouthEast" };
+
         public double X { get; }
         public double Y { get; }
+
+        public double Angle => Atan2().ToDegrees();
+        public int CardinalDirection4Index => (int)(((Angle + 30) % 360) / 60);
+        public int CardinalDirection8Index => (int)(((Angle + 22.5) % 360) / 45);
 
         public static GameVector operator +(GameVector lhs, GameVector rhs)
             => (lhs.X + rhs.X, lhs.Y + rhs.Y);
@@ -88,25 +96,11 @@ namespace RayLib
         public double Atan2()
             => Y.Atan2(X);
 
-        public GameVector ToCardinalDirection4()
-            => (Atan2() + Math.PI) switch
-            {
-                var d when d < Math.PI / 4.0
-                    => GameVector.East,
-                var d when d < 3.0 * Math.PI / 4.0
-                    => GameVector.North,
-                var d when d < 5.0 * Math.PI / 4.0
-                    => GameVector.West,
-                var d when d < 7.0 * Math.PI / 4.0
-                    => GameVector.South,
-                _ => GameVector.East
-            };
-
         public GameVector Floor()
             => (X.Floor(), Y.Floor());
 
-        public GameVector Round()
-            => (X.Round(), Y.Round());
+        public GameVector Round(int digits = 2)
+            => (X.Round(digits), Y.Round(digits));
 
         public double Distance(GameVector other)
             => Math.Sqrt(this.UnscaledDistance(other));

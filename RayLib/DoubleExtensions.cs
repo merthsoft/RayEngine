@@ -4,25 +4,61 @@ namespace RayLib
 {
     public static class DoubleExtensions
     {
-        public static double Round(this double f, int digits = 2)
-            => Math.Round(f, digits);
+        public static (double, double) Add(this (double, double) value, double additionalValue)
+            => (value.Item1 + additionalValue, value.Item2 + additionalValue);
 
-        public static (double, double) Round(this (double f1, double f2) f, int digits = 2)
-            => (f.f1.Round(digits), f.f2.Round(digits));
+        public static double Round(this double value, int digits = 2)
+            => Math.Round(value, digits, MidpointRounding.AwayFromZero);
 
-        public static double Cos(this double f)
-            => Math.Cos(f);
+        public static double RoundUp(this double value, int digits = 2)
+            => value >= 0
+             ? Math.Round(value, digits, MidpointRounding.AwayFromZero)
+             : -Math.Round(value.Abs(), digits, MidpointRounding.AwayFromZero);
+
+        public static double RoundUpToNearest(this double value, double roundTo) 
+            => roundTo == 0 ? value : Math.Ceiling(value / roundTo) * roundTo;
+
+        public static double RoundToNearestHalf(this double value)
+            => value > 0
+             ? value.RoundUpToNearest(.5)
+             : -(value.Abs().RoundUpToNearest(.5));
+
+        public static (double, double) RoundToNeastestHalf(this (double, double) value)
+            => (value.Item1.RoundToNearestHalf(), value.Item2.RoundToNearestHalf());
+
+        public static (double, double) Round(this (double, double) value, int digits = 2)
+            => (value.Item1.Round(digits), value.Item2.Round(digits));
+
+        public static double Cos(this double value)
+            => Math.Cos(value);
 
         public static double Atan2(this double y, double x)
             => Math.Atan2(y, x);
 
-        public static double Sin(this double f)
-            => Math.Sin(f);
+        public static double Sin(this double value)
+            => Math.Sin(value);
 
-        public static double Abs(this double f)
-            => Math.Abs(f);
+        public static double Abs(this double value)
+            => Math.Abs(value);
 
-        public static double Floor(this double f)
-            => Math.Floor(f);
+        public static double Floor(this double value)
+            => Math.Floor(value);
+
+        public static (double, double) Floor(this (double, double) value)
+            => (value.Item1.Floor(), value.Item2.Floor());
+
+        public static double Ceiling(this double value)
+            => Math.Ceiling(value);
+
+        public static (double, double) Ceiling(this (double, double) value)
+            => (value.Item1.Ceiling(), value.Item2.Ceiling());
+
+        public static double ToDegrees(this double radians)
+        {
+            var ret = (180 / Math.PI) * radians;
+            if (ret < 0)
+                ret += 360;
+            return ret % 360;
+        }
     }
 }

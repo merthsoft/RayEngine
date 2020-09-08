@@ -9,14 +9,15 @@ using RayLib.Defs;
 using RayLib.Objects;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RayEngine
 {
     public class RayGame : Game
     {
+        private static readonly Random Random = new();
+
         public static SpriteFont DefaultFont { get; set; } = null!;
-        public static Texture2D[] CompassTextures { get; } = new Texture2D[4];
+        public static Texture2D[] CompassTextures { get; } = new Texture2D[8];
 
         private GraphicsDeviceManager Graphics { get; }
         private Renderer GameScreen { get; set; } = null!;
@@ -61,17 +62,46 @@ namespace RayEngine
                 new PrimitiveBatch(GraphicsDevice, 1000000)
             );
 
+            // 0
             WallDefs.Add(new WallDef("Red Bricks",
                 northSouthTexture: Content.Load<RayTexture>("Walls/RedBricks0"),
                 eastWestTexture: Content.Load<RayTexture>("Walls/RedBricks1")
             ));
 
+            // 1
+            WallDefs.Add(new WallDef("Red Bricks Multicolored",
+                northSouthTexture: Content.Load<RayTexture>("Walls/RedBricksMulticolored0"),
+                eastWestTexture: Content.Load<RayTexture>("Walls/RedBricksMulticolored1")
+            ));
+
+            // 2
+            WallDefs.Add(new WallDef("Red Bricks Planet",
+                northSouthTexture: Content.Load<RayTexture>("Walls/RedBricksPlanet0"),
+                eastWestTexture: Content.Load<RayTexture>("Walls/RedBricksPlanet1")
+            ));
+
+            // 3
+            WallDefs.Add(new WallDef("Brown Bricks",
+                northSouthTexture: Content.Load<RayTexture>("Walls/Brown0"),
+                eastWestTexture: Content.Load<RayTexture>("Walls/Brown1")
+            ));
+
+            // 4
+            WallDefs.Add(new WallDef("Wooden Wall",
+                northSouthTexture: Content.Load<RayTexture>("Walls/WoodenWall0"),
+                eastWestTexture: Content.Load<RayTexture>("Walls/WoodenWall1")
+            ));
+
+            // 5
+            WallDefs.Add(new WallDef("Wooden Wall with Sign",
+                northSouthTexture: Content.Load<RayTexture>("Walls/WoodenWallWithSign0"),
+                eastWestTexture: Content.Load<RayTexture>("Walls/WoodenWallWithSign1")
+            ));
+
             DefaultFont = Content.Load<SpriteFont>("DefaultFont");
 
-            CompassTextures[0] = Content.Load<Texture2D>("Ux/Compass/2");
-            CompassTextures[1] = Content.Load<Texture2D>("Ux/Compass/4");
-            CompassTextures[2] = Content.Load<Texture2D>("Ux/Compass/1");
-            CompassTextures[3] = Content.Load<Texture2D>("Ux/Compass/3");
+            for (int i = 0; i < 8; i++)
+                CompassTextures[i] = Content.Load<Texture2D>($"Ux/Compass/{i}");
 
             var well = new StaticObjectDef(
                 name: "GreyWellFull", blocking: true,
@@ -88,34 +118,39 @@ namespace RayEngine
             var atmBucket = new ActorDef("Atm", Content.Load<RayTexture>("Sprites/Actors/AtmBucket/1"));
 
             Map = new Map(24, 24,
-                    simpleMap: @"111111111111111111111111
-                                 1                      1
-                                 1        *             1
-                                 1                      1
-                                 1     2222222223 3 3   1
-                                 1r+   2       2        1
-                                 1     2 r     23   3   1
-                                 1     2       2        1
-                                 1    *22 2222223 3 3   1
-                                 1                      1
-                                 1                      1
-                                 1                      1
-                                 1                      1
-                                 1                      1
-                                 1                      1
-                                 1                      1
-                                 14~444444              1
-                                 14 4    4              1
-                                 14 ~ 5 x4              1
-                                 14 4   a4              1
-                                 14 444444              1
-                                 14      ~              1
-                                 144444444              1
-                                 111111111111111111111111",
+                    simpleMap: @"000000000000000000000000
+                                 0                      0
+                                 0        *             0
+                                 0                      0
+                                 0     0000000004 4 4   0
+                                 0r+   0       0        0
+                                 0     0 a     0    5   0
+                                 0     0       0        0
+                                 0    *00 0000004 4 4   0
+                                 0                      0
+                                 0                      0
+                                 0                      0
+                                 0                      0
+                                 0                      0
+                                 0                      0
+                                 0                      0
+                                 03~333333              0
+                                 03 3    3              0
+                                 03 ~ 2 x3              0
+                                 03 3   a3              0
+                                 03 333333              0
+                                 03      ~              0
+                                 033333333              0
+                                 000000000000000000000000",
                     generator: (Map map, int i, int j, char c) =>
                     {
                         if (char.IsDigit(c))
-                            map.SetWall(0, i, j, WallDefs[0]);  // TODO: Parse lol
+                        {
+                            var wall = int.Parse(c.ToString());
+                            if (wall == 0 && Random.NextDouble() > .8)
+                                wall = 1;
+                            map.SetWall(0, i, j, WallDefs[wall]);
+                        }
                         else if (c == '*')
                             map.SpawnObject(0, i, j, well);
                         else if (c == '~')
@@ -137,7 +172,7 @@ namespace RayEngine
         {
             if (Step != null)
                 PreviousState = HandleKeyboardInput();
-            Step = Map.Update(Player, ViewWidth, ViewHeight);
+            Step = Map.Update(Player, ViewWidth, ViewHeight, Player.Direction / 2);
 
             FramesPerSecondCounter.Update(gameTime);
             base.Update(gameTime);
@@ -147,58 +182,48 @@ namespace RayEngine
         {
             var keyboardState = Keyboard.GetState();
 
-            (var posX, var posY) = Player.Location;
+            (var posX, var posY) = Player.Location.Floor();
             (var dirX, var dirY) = Player.Direction;
             (var planeX, var planeY) = Player.Plane;
             var oldDirX = dirX;
-            var rotSpeed = 1.57;
+            var rotSpeed = -1.57/2;
             var moveSpeed = 1.0;
 
             if (keyboardState.WasKeyJustPressed(PreviousState, Keys.W, Keys.Up, Keys.J, Keys.NumPad8))
             {
-                posX += dirX * moveSpeed;
-                posY += dirY * moveSpeed;
+                posX += (dirX).Round(0) * moveSpeed;
+                posY += (dirY).Round(0) * moveSpeed;
             }
             else if (keyboardState.WasKeyJustPressed(PreviousState, Keys.S, Keys.Down, Keys.K, Keys.NumPad2))
             {
-                posX -= dirX * moveSpeed;
-                posY -= dirY * moveSpeed;
-            }
-            else if (keyboardState.WasKeyJustPressed(PreviousState, Keys.NumPad9))
-            {
-                posX += (planeX * moveSpeed).Round(0);
-                posY += (planeY * moveSpeed).Round(0);
-            }
-            else if (keyboardState.WasKeyJustPressed(PreviousState, Keys.NumPad7))
-            {
-                posX -= (planeX * moveSpeed).Round(0);
-                posY -= (planeY * moveSpeed).Round(0);
+                posX -= (dirX).Round(0) * moveSpeed;
+                posY -= (dirY).Round(0) * moveSpeed;
             }
             else if (keyboardState.WasKeyJustPressed(PreviousState, Keys.A, Keys.Left, Keys.H, Keys.NumPad4))
             {
-                dirX = dirX * -rotSpeed.Cos() - dirY * -rotSpeed.Sin();
-                dirY = oldDirX * -rotSpeed.Sin() + dirY * -rotSpeed.Cos();
+                dirX = (dirX * (-rotSpeed).Cos()) - (dirY * (-rotSpeed).Sin());
+                dirY = (oldDirX * (-rotSpeed).Sin()) + (dirY * (-rotSpeed).Cos());
                 var oldPlaneX = planeX;
-                planeX = planeX * -rotSpeed.Cos() - planeY * -rotSpeed.Sin();
-                planeY = oldPlaneX * -rotSpeed.Sin() + planeY * -rotSpeed.Cos();
+                planeX = (planeX * (-rotSpeed).Cos()) - (planeY * (-rotSpeed).Sin());
+                planeY = (oldPlaneX * (-rotSpeed).Sin()) + (planeY * (-rotSpeed).Cos());
             }
             else if (keyboardState.WasKeyJustPressed(PreviousState, Keys.D, Keys.Right, Keys.L, Keys.NumPad6))
             {
-                dirX = dirX * rotSpeed.Cos() - dirY * rotSpeed.Sin();
-                dirY = oldDirX * rotSpeed.Sin() + dirY * rotSpeed.Cos();
+                dirX = (dirX * rotSpeed.Cos()) - (dirY * rotSpeed.Sin());
+                dirY = (oldDirX * rotSpeed.Sin()) + (dirY * rotSpeed.Cos());
                 var oldPlaneX = planeX;
-                planeX = planeX * rotSpeed.Cos() - planeY * rotSpeed.Sin();
-                planeY = oldPlaneX * rotSpeed.Sin() + planeY * rotSpeed.Cos();
+                planeX = (planeX * rotSpeed.Cos()) - (planeY * rotSpeed.Sin());
+                planeY = (oldPlaneX * rotSpeed.Sin()) + (planeY * rotSpeed.Cos());
             }
 
-            Map.ClearPlayer(Player);
             if (!Map.BlockedAt(0, (int)posX, (int)posY))
             {
-                Player.Location = (posX, posY).Round();
-                Player.Direction = (dirX, dirY).Round();
-                Player.Plane = (planeX, planeY).Round();
+                Map.ClearPlayer(Player);
+                Player.Location = (posX, posY).Floor().Add(.5);
+                Map.SetPlayer(Player);
             }
-            Map.SetPlayer(Player);
+            Player.Direction = (dirX, dirY).Round();
+            Player.Plane = (planeX, planeY).Round();
 
 
             return keyboardState;
@@ -210,17 +235,11 @@ namespace RayEngine
             GameScreen.Draw(0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight, 0, 0, 1,
                 activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
+                    .DrawText($"{Player.Location} {Player.Direction} {Player.Plane} {GameVector.CardinalDirections8Names[Player.Direction.CardinalDirection8Index]}", 0, 0, 255, 200, 200, 255)
 
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-            var compass = Player.Direction.Atan2() switch
-            {
-                var x when x == -MathF.PI / 2f => CompassTextures[3],
-                var x when x < MathF.PI / 2f => CompassTextures[0],
-                var x when x < MathF.PI => CompassTextures[1],
-                var x when x < 3f * MathF.PI / 2f => CompassTextures[2],
-                _ => CompassTextures[3]
-            };
+            var compass = CompassTextures[Player.Direction.CardinalDirection8Index];
             GameScreen.SpriteBatch.Draw(compass, new Rectangle(ViewWidth + 32, 32, 64, 64), Color.White);
             GameScreen.SpriteBatch.End();
 
