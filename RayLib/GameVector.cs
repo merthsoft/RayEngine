@@ -33,6 +33,9 @@ namespace RayLib
         public static GameVector operator +(GameVector lhs, GameVector rhs)
             => (lhs.X + rhs.X, lhs.Y + rhs.Y);
 
+        public static GameVector operator *(GameVector lhs, GameVector rhs)
+            => (lhs.X * rhs.X, lhs.Y * rhs.Y);
+
         public static GameVector operator -(GameVector lhs, GameVector rhs)
             => (lhs.X - rhs.X, lhs.Y - rhs.Y);
 

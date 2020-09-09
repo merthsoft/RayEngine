@@ -65,7 +65,7 @@ namespace RayLib
             spot.Add(obj);
         }
 
-        private void RemoveFromObjectMap(int layer, GameObject obj)
+        private void RemoveFromObjectMap(int layer, GameObject obj) 
         {
             var spot = ObjectMap[layer][(int)obj.Location.X][(int)obj.Location.Y];
             spot.Remove(obj);
@@ -221,7 +221,7 @@ namespace RayLib
             {
                 var locationDelta = obj.Location - (posX, posY);
                 var angle = locationDelta.Atan2().ToDegrees();
-                var (spriteX, spriteY) = locationDelta - viewOffset * .7;
+                var (spriteX, spriteY) = locationDelta - viewOffset*.7;
                 var invDet = 1.0 / (planeX * dirY - dirX * planeY);
 
                 var transformX = invDet * (dirY * spriteX - dirX * spriteY);
@@ -238,15 +238,15 @@ namespace RayLib
                     drawEndY = viewHeight - 1;
 
                 //calculate width of the sprite
-                var spriteWidth = (int)(viewHeight / transformY).Abs();
-                var drawStartX = -spriteWidth / 2 + spriteScreenX;
+                var spriteWidth = (int)(viewHeight / transformY / (planeX * dirY - dirX * planeY)*.65).Abs();
+                var drawStartX = (-spriteWidth / 2 + spriteScreenX);
                 if (drawStartX < 0)
                     drawStartX = 0;
-                var drawEndX = spriteWidth / 2 + spriteScreenX;
+                var drawEndX = (spriteWidth / 2 + spriteScreenX);
                 if (drawEndX >= viewWidth)
                     drawEndX = viewWidth - 1;
                 
-                for (var stripe = drawStartX; stripe < drawEndX; stripe++)
+                for (var stripe = (int)drawStartX; stripe < (int)drawEndX; stripe++)
                 {
                     screenX = viewWidth - stripe - 1;
                     var textureWidth = (int)obj.Def.DrawSize.W;
