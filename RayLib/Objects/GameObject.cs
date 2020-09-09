@@ -7,9 +7,31 @@ namespace RayLib.Objects
         public Def Def { get; set; }
 
         public GameVector Location { get; set; } = GameVector.Zero;
-        public GameVector Direction { get; set; } = (0, 0);
-        public double FieldOfView { get; set; } = 0.66;
-        public GameVector Plane => -Direction.Perpendicularize() * FieldOfView;
+
+        private GameVector direction = (0, 0);
+        public GameVector Direction
+        { 
+            get => direction;
+            set
+            {
+                direction = value;
+                PlaneCache = null;
+            }
+        }
+
+        private double fieldOfView = 0.66;
+        public double FieldOfView
+        {
+            get => fieldOfView;
+            set
+            {
+                fieldOfView = value;
+                PlaneCache = null;
+            }
+        }
+
+        public GameVector? PlaneCache = null;
+        public GameVector Plane => PlaneCache ??= - Direction.Perpendicularize() * FieldOfView;
 
         public abstract bool Blocking { get; }
         public abstract bool BlocksView { get; }

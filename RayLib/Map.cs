@@ -59,15 +59,15 @@ namespace RayLib
             }
         }
 
-        private void AddToObjectMap(GameObject obj)
+        private void AddToObjectMap(int layer, GameObject obj)
         {
-            var spot = ObjectMap[0][(int)obj.Location.X][(int)obj.Location.Y];
+            var spot = ObjectMap[layer][(int)obj.Location.X][(int)obj.Location.Y];
             spot.Add(obj);
         }
 
-        private void RemoveFromObjectMap(GameObject obj) 
+        private void RemoveFromObjectMap(int layer, GameObject obj)
         {
-            var spot = ObjectMap[0][(int)obj.Location.X][(int)obj.Location.Y];
+            var spot = ObjectMap[layer][(int)obj.Location.X][(int)obj.Location.Y];
             spot.Remove(obj);
         }
 
@@ -132,9 +132,9 @@ namespace RayLib
         {
             Actors.ForEach(a =>
             {
-                RemoveFromObjectMap(a);
+                RemoveFromObjectMap(0, a);
                 a.Act(this, player);
-                AddToObjectMap(a);
+                AddToObjectMap(0, a);
             });
 
             var (viewWidth, viewHeight) = ViewSize;
@@ -267,7 +267,7 @@ namespace RayLib
             var obj = new StaticObject(def, x, y);
             Debug.WriteLine($"Spawning {obj.Def.Name} at {obj.Location}");
             StaticObjects.Add(obj);
-            AddToObjectMap(obj);
+            AddToObjectMap(layer, obj);
             return obj;
         }
 
@@ -276,12 +276,12 @@ namespace RayLib
             var obj = new T() { Def = def , Location = (x + .5, y + .5) };
             Debug.WriteLine($"Spawning {obj.Def.Name} at {obj.Location}");
             Actors.Add(obj);
-            AddToObjectMap(obj);
+            AddToObjectMap(layer, obj);
             return obj;
         }
 
         public void ClearPlayer(Player player)
-            => RemoveFromObjectMap(player);
+            => RemoveFromObjectMap(0, player);
 
         public bool BlockedAt(int layer, GameVector location, bool playerBlocks = true)
             => BlockedAt(layer, (int)location.X, (int)location.Y, playerBlocks);
@@ -296,7 +296,7 @@ namespace RayLib
         }
 
         public void SetPlayer(Player player)
-            => AddToObjectMap(player);
+            => AddToObjectMap(0, player);
 
         public IEnumerable<GameVector> FindPath(GameVector pos1, GameVector pos2)
             => AStar.Search(pos1, pos2, this, (p1, p2) => p1.UnscaledDistance(p2));

@@ -234,6 +234,10 @@ namespace RayEngine
                 dirX = (dirX * rotSpeed.Cos()) - (dirY * rotSpeed.Sin());
                 dirY = (oldDirX * rotSpeed.Sin()) + (dirY * rotSpeed.Cos());
             }
+            else if (keyboardState.IsKeyDown(Keys.OemPlus) && Player.FieldOfView < .99)
+                Player.FieldOfView = (Player.FieldOfView + .01).Round(2);
+            else if (keyboardState.IsKeyDown(Keys.OemMinus) && Player.FieldOfView > .1)
+                Player.FieldOfView = (Player.FieldOfView - .01).Round(2);
 
             if (!Map.BlockedAt(0, (int)posX, (int)posY))
             {
