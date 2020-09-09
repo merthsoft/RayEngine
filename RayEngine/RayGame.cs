@@ -34,8 +34,8 @@ namespace RayEngine
         private GamePlayer Player { get; } = new GamePlayer(ActorDef.Empty)
         {
             Location = (2.5, 2.5),
-            Direction = (1, 0),
-            Plane = (0, .66),
+            Direction = GameVector.East,
+            FieldOfView = .66,
         };
 
         private List<WallDef> WallDefs { get; } = new List<WallDef>();
@@ -169,8 +169,8 @@ namespace RayEngine
                         }
                         else if (c == '*')
                             map.SpawnObject(0, i, j, well);
-                        //else if (c == '~')
-                        //    map.SpawnObject(0, i, j, vines).Direction = GameVector.North;
+                        else if (c == '~')
+                            map.SpawnObject(0, i, j, vines).Direction = GameVector.North;
                         else if (c == '|')
                             map.SpawnObject(0, i, j, vines).Direction = GameVector.East;
                         else if (c == 'x')
@@ -184,7 +184,7 @@ namespace RayEngine
                         else if (c == 'a')
                             map.SpawnActor<Sleeper>(0, i, j, atmBucket)
                                 .SetDirection(GameVector.South)
-                                .SetPlane(GameVector.SouthPlane);
+                                .SetFieldOfView(.8);
                         else
                             map.SetWall(0, i, j, WallDef.Empty);
                     })
@@ -210,7 +210,6 @@ namespace RayEngine
 
             (var posX, var posY) = Player.Location.Floor();
             (var dirX, var dirY) = Player.Direction;
-            (var planeX, var planeY) = Player.Plane;
             var oldDirX = dirX;
             var rotSpeed = -1.57/2;
             var moveSpeed = 1.0;
@@ -229,17 +228,11 @@ namespace RayEngine
             {
                 dirX = (dirX * (-rotSpeed).Cos()) - (dirY * (-rotSpeed).Sin());
                 dirY = (oldDirX * (-rotSpeed).Sin()) + (dirY * (-rotSpeed).Cos());
-                var oldPlaneX = planeX;
-                planeX = (planeX * (-rotSpeed).Cos()) - (planeY * (-rotSpeed).Sin());
-                planeY = (oldPlaneX * (-rotSpeed).Sin()) + (planeY * (-rotSpeed).Cos());
             }
             else if (keyboardState.WasKeyJustPressed(PreviousState, Keys.D, Keys.Right, Keys.L, Keys.NumPad6))
             {
                 dirX = (dirX * rotSpeed.Cos()) - (dirY * rotSpeed.Sin());
                 dirY = (oldDirX * rotSpeed.Sin()) + (dirY * rotSpeed.Cos());
-                var oldPlaneX = planeX;
-                planeX = (planeX * rotSpeed.Cos()) - (planeY * rotSpeed.Sin());
-                planeY = (oldPlaneX * rotSpeed.Sin()) + (planeY * rotSpeed.Cos());
             }
 
             if (!Map.BlockedAt(0, (int)posX, (int)posY))
@@ -249,8 +242,6 @@ namespace RayEngine
                 Map.SetPlayer(Player);
             }
             Player.Direction = (dirX, dirY).Round();
-            Player.Plane = (planeX, planeY).Round();
-
 
             return keyboardState;
         }
@@ -271,7 +262,7 @@ namespace RayEngine
             var face = FaceTextures[0];
             GameScreen.SpriteBatch
                 .DrawTexture(CompassBase, midX - 75, 32, 150, 150)
-                .DrawTexture(CompassNeedle, midX - 75, 32, 150, 150, Player.Direction.Atan2())
+                .DrawTexture(CompassNeedle, midX - 75, 32, 150, 150, -Player.Direction.Atan2())
                 .DrawTexture(FaceTextures[Player.Face], midX - 75, ViewHeight - 160, 150, 150)
             ;
             GameScreen.SpriteBatch.End();

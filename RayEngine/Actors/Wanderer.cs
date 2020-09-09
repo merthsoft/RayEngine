@@ -22,7 +22,6 @@ namespace RayEngine.Actors
 
             (var posX, var posY) = Location;
             (var dirX, var dirY) = Direction;
-            (var planeX, var planeY) = Plane;
             var oldDirX = dirX;
             var rotSpeed = 1.57;
             var moveSpeed = 1.0;
@@ -40,9 +39,6 @@ namespace RayEngine.Actors
 
                 dirX = dirX * -rotSpeed.Cos() - dirY * -rotSpeed.Sin();
                 dirY = oldDirX * -rotSpeed.Sin() + dirY * -rotSpeed.Cos();
-                var oldPlaneX = planeX;
-                planeX = planeX * -rotSpeed.Cos() - planeY * -rotSpeed.Sin();
-                planeY = oldPlaneX * -rotSpeed.Sin() + planeY * -rotSpeed.Cos();
 
                 TurnTimer = Random.Next(10, 25);
             }
@@ -52,7 +48,6 @@ namespace RayEngine.Actors
             {
                 Location = (posX, posY);
                 Direction = (dirX, dirY).Round();
-                Plane = (planeX, planeY).Round();
             }
         }
     }

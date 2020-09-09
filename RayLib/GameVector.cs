@@ -17,16 +17,6 @@ namespace RayLib
         public static GameVector West = (-1, 0);
         public static GameVector NorthWest = (-.71, .71);
 
-        // TODO: Fix these
-        public static GameVector NorthPlane = (-.66, 0);
-        public static GameVector NorthEastPlane = (.71, .71);
-        public static GameVector EastPlane = (1, 0);
-        public static GameVector SouthEastPlane = (.71, -.71);
-        public static GameVector SouthPlane = (.66, 0);
-        public static GameVector SouthWestPlane = (-.71, -.71);
-        public static GameVector WestPlane = (-1, 0);
-        public static GameVector NorthWestPlane = (-.71, .71);
-
         public static GameVector[] CardinalDirections4 = new[] { East, North, West, South };
         public static GameVector[] CardinalDirections8 = new[] { East, NorthEast, North, NorthWest, West, SouthWest, South, SouthEast };
 
@@ -108,6 +98,9 @@ namespace RayLib
 
         public GameVector Abs()
             => (X.Abs(), Y.Abs());
+
+        public GameVector Perpendicularize()
+            => (Y, -X);
 
         public double Atan2()
             => Y.Atan2(X);

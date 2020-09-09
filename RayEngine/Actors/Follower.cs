@@ -17,8 +17,7 @@ namespace RayEngine.Actors
 
         public override void Act(Map map, Player player)
         {
-            var gamePlayer = player as GamePlayer;
-            if (gamePlayer == null)
+            if (player is not GamePlayer gamePlayer)
                 return;
 
             MoveTimer--;

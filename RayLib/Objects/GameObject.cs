@@ -8,7 +8,8 @@ namespace RayLib.Objects
 
         public GameVector Location { get; set; } = GameVector.Zero;
         public GameVector Direction { get; set; } = (0, 0);
-        public GameVector Plane { get; set; } = (0, 0.66f);
+        public double FieldOfView { get; set; } = 0.66;
+        public GameVector Plane => -Direction.Perpendicularize() * FieldOfView;
 
         public abstract bool Blocking { get; }
         public abstract bool BlocksView { get; }
@@ -30,9 +31,9 @@ namespace RayLib.Objects
             return this;
         }
 
-        public GameObject SetPlane(GameVector v)
+        public GameObject SetFieldOfView(double fieldOfView)
         {
-            Plane = v;
+            FieldOfView = fieldOfView;
             return this;
         }
     }

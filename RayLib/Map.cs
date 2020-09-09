@@ -82,7 +82,7 @@ namespace RayLib
             {
                 var (mapX, mapY) = baseObject.Location.Floor();
                 var cameraX = 2.0 * x / viewWidth - 1.0;
-                var rayDir = baseObject.Direction + baseObject.Plane * cameraX;
+                var rayDir = baseObject.Direction + baseObject.FieldOfView * cameraX;
                 var (deltaDistX, deltaDistY) = (1 / rayDir).Abs();
 
                 (var stepX, var sideDistX) = rayDir.X < 0
