@@ -35,7 +35,7 @@ namespace RayEngine
         {
             Location = (2.5, 2.5),
             Direction = GameVector.East,
-            FieldOfView = .66,
+            FieldOfView = .75,
         };
 
         private List<WallDef> WallDefs { get; } = new List<WallDef>();
@@ -184,7 +184,7 @@ namespace RayEngine
                         else if (c == 'a')
                             map.SpawnActor<Sleeper>(0, i, j, atmBucket)
                                 .SetDirection(GameVector.South)
-                                .SetFieldOfView(.8);
+                                .SetFieldOfView(2);
                         else
                             map.SetWall(0, i, j, WallDef.Empty);
                     })
@@ -234,9 +234,9 @@ namespace RayEngine
                 dirX = (dirX * rotSpeed.Cos()) - (dirY * rotSpeed.Sin());
                 dirY = (oldDirX * rotSpeed.Sin()) + (dirY * rotSpeed.Cos());
             }
-            else if (keyboardState.IsKeyDown(Keys.OemPlus) && Player.FieldOfView < .99)
+            else if (keyboardState.IsKeyDown(Keys.OemPlus))
                 Player.FieldOfView = (Player.FieldOfView + .01).Round(2);
-            else if (keyboardState.IsKeyDown(Keys.OemMinus) && Player.FieldOfView > .1)
+            else if (keyboardState.IsKeyDown(Keys.OemMinus) && Player.FieldOfView > .01)
                 Player.FieldOfView = (Player.FieldOfView - .01).Round(2);
 
             if (!Map.BlockedAt(0, (int)posX, (int)posY))

@@ -102,7 +102,7 @@ namespace RayLib
         public GameVector Abs()
             => (X.Abs(), Y.Abs());
 
-        public GameVector Perpendicularize()
+        public GameVector GetPerpendicularVector()
             => (Y, -X);
 
         public double Atan2()

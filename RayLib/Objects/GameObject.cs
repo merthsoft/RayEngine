@@ -1,9 +1,13 @@
 ﻿using RayLib.Defs;
+using System;
 
 namespace RayLib.Objects
 {
     public abstract class GameObject
     {
+        public static GameVector StandardPlaneEffect(GameVector pv)
+            => -pv.GetPerpendicularVector();
+
         public Def Def { get; set; }
 
         public GameVector Location { get; set; } = GameVector.Zero;
@@ -30,8 +34,19 @@ namespace RayLib.Objects
             }
         }
 
+        private Func<GameVector, GameVector> planeEffect = StandardPlaneEffect;
+        public Func<GameVector, GameVector> PlaneEffect
+        { 
+            get => planeEffect;
+            set
+            {
+                planeEffect = value;
+                PlaneCache = null;
+            }
+        }
+
         public GameVector? PlaneCache = null;
-        public GameVector Plane => PlaneCache ??= - Direction.Perpendicularize() * FieldOfView;
+        public GameVector Plane => PlaneCache ??= PlaneEffect(Direction) * FieldOfView;
 
         public abstract bool Blocking { get; }
         public abstract bool BlocksView { get; }
