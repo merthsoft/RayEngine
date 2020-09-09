@@ -7,8 +7,6 @@ namespace RayEngine.Actors
 {
     public class Wanderer : Actor
     {
-        private static readonly Random Random = new Random();
-
         private int WalkTimer = 15;
         private int TurnTimer = 25;
 

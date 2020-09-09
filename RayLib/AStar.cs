@@ -6,6 +6,7 @@ namespace RayLib
 {
     public interface INeighborable<T>
     {
+        (int w, int h) Size { get; }
         IEnumerable<T> GetNeighbors(T root);
     }
 
@@ -47,6 +48,9 @@ namespace RayLib
                         frontier.Enqueue(neighbor, priority);
                     }
                 }
+
+                if (frontier.Count > obj.Size.w * obj.Size.h)
+                    break;
             }
 
             var path = new List<TLocation>();

@@ -9,15 +9,17 @@ using RayLib.Defs;
 using RayLib.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using static RayEngine.Actors.GamePlayer;
 
 namespace RayEngine
 {
     public class RayGame : Game
     {
-        private static readonly Random Random = new();
-
-        public static SpriteFont DefaultFont { get; set; } = null!;
-        public static Texture2D[] CompassTextures { get; } = new Texture2D[8];
+        public static SpriteFont DefaultFont { get; private set; } = null!;
+        public static Texture2D CompassBase { get; private set; } = null!;
+        public static Texture2D CompassNeedle { get; private set; } = null!;
+        public static Dictionary<FaceState, Texture2D> FaceTextures { get; } = new();
 
         private GraphicsDeviceManager Graphics { get; }
         private Renderer GameScreen { get; set; } = null!;
@@ -29,7 +31,7 @@ namespace RayEngine
 
         private Map Map { get; set; } = null!;
         private Step? Step { get; set; }
-        private Player Player { get; } = new Player(Def.Empty)
+        private GamePlayer Player { get; } = new GamePlayer(ActorDef.Empty)
         {
             Location = (2.5, 2.5),
             Direction = (1, 0),
@@ -100,47 +102,61 @@ namespace RayEngine
 
             DefaultFont = Content.Load<SpriteFont>("DefaultFont");
 
-            for (int i = 0; i < 8; i++)
-                CompassTextures[i] = Content.Load<Texture2D>($"Ux/Compass/{i}");
+            CompassBase = Content.Load<Texture2D>($"Ux/Compass/Base");
+            CompassNeedle = Content.Load<Texture2D>($"Ux/Compass/Needle");
+
+            foreach (var state in Enum.GetValues(typeof(FaceState)).Cast<FaceState>())
+                FaceTextures[state] = Content.Load<Texture2D>($"Ux/Face/{state}");
 
             var well = new StaticObjectDef(
-                name: "GreyWellFull", blocking: true,
+                name: "GreyWellFull", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/GreyWellFull"));
             var bloodyWell = new StaticObjectDef(
-                name: "GreyWellBlood", blocking: true,
+                name: "GreyWellBlood", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
             var vines = new StaticObjectDef(
-                name: "Vines", blocking: false,
+                name: "Vines", blocking: false, blocksView: true,
                 Content.Load<RayTexture>("Sprites/Static/Vines"));
+            var bucket = new StaticObjectDef(
+                name: "Bucket", blocking: true, blocksView: false,
+                Content.Load<RayTexture>("Sprites/Static/Bucket"));
+            var pillar = new StaticObjectDef(
+                name: "Pillar", blocking: true, blocksView: false,
+                Content.Load<RayTexture>("Sprites/Static/Pillar"));
 
-            var rat = new ActorDef("Rat", Content.Load<RayTexture>("Sprites/Actors/Rat/1"));
-            var melon = new ActorDef("Melon", Content.Load<RayTexture>("Sprites/Actors/WaterMelon/1"));
-            var atmBucket = new ActorDef("Atm", Content.Load<RayTexture>("Sprites/Actors/AtmBucket/1"));
+            var spider = new ActorDef("Spider", blocksView: false, 
+                Content.Load<RayTexture>("Sprites/Actors/Spider/1"));
+
+            var atmBucket = new ActorDef("Atm", blocksView: false,
+                Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Idle"),
+                Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Wakeup"),
+                Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Walk")
+            );
 
             Map = new Map(24, 24,
                     simpleMap: @"000000000000000000000000
                                  0                      0
-                                 0        *             0
                                  0                      0
-                                 0     0000000004 4 4   0
-                                 0r+   0       0        0
-                                 0     0 a     0 a  5   0
-                                 0     0       0        0
-                                 0    *00~0000004 4 4   0
-                                 0                      0
-                                 0                      0
-                                 0                      0
+                                 0     000000000000     0
+                                 0     0      s   0     0
+                                 0     0          0     0
+                                 0     0IIII     B0    a0
+                                 0     0   I s    0     0
+                                 0     0   I    sB0B   B0
+                                 0    *00~000000000000000
                                  0                      0
                                  0                      0
+                                 0       I       BI     0
                                  0                      0
                                  0                      0
-                                 03~333333              0
-                                 03 3    3  a           0
-                                 03 | 2 x3              0
-                                 03 3   a3              0
-                                 03 333333              0
-                                 03a     ~              0
-                                 033333333           a  0
+                                 0B B                B  0
+                                 03~33333333            0
+                                 03 3   aaB3B     I     0
+                                 03 |   xaa3   B    B   0
+                                 03 3   aaa3            0
+                                 03 33333333B           0
+                                 03      ~              0
+                                 033333333B   B   I  BBB0
                                  000000000000000000000000",
                     generator: (Map map, int i, int j, char c) =>
                     {
@@ -153,29 +169,36 @@ namespace RayEngine
                         }
                         else if (c == '*')
                             map.SpawnObject(0, i, j, well);
-                        else if (c == '~')
-                            map.SpawnObject(0, i, j, vines).Direction = GameVector.North;
+                        //else if (c == '~')
+                        //    map.SpawnObject(0, i, j, vines).Direction = GameVector.North;
                         else if (c == '|')
                             map.SpawnObject(0, i, j, vines).Direction = GameVector.East;
                         else if (c == 'x')
                             map.SpawnObject(0, i, j, bloodyWell);
-                        //else if (c == 'r')
-                        //    map.SpawnActor<Wanderer>(0, i, j, rat);
-                        //else if (c == '+')
-                        //    map.SpawnActor<Wanderer>(0, i, j, melon);
-                        //else if (c == 'a')
-                        //    map.SpawnActor<Follower>(0, i, j, atmBucket);
+                        else if (c == 'B')
+                            map.SpawnObject(0, i, j, bucket);
+                        else if (c == 'I')
+                            map.SpawnObject(0, i, j, pillar);
+                        else if (c == 's')
+                            map.SpawnActor<Wanderer>(0, i, j, spider).Direction = GameVector.East;
+                        else if (c == 'a')
+                            map.SpawnActor<Sleeper>(0, i, j, atmBucket)
+                                .SetDirection(GameVector.South)
+                                .SetPlane(GameVector.SouthPlane);
                         else
                             map.SetWall(0, i, j, WallDef.Empty);
-                    });
+                    })
+            {
+                ViewSize = (ViewWidth, ViewHeight)
+            };
         }
 
         protected override void Update(GameTime gameTime)
         {
-            Player.Update();
+            Player.Act(Map, Player);
             if (Step != null)
                 PreviousState = HandleKeyboardInput();
-            Step = Map.Update(Player, ViewWidth, ViewHeight, Player.Direction / 2);
+            Step = Map.Update(Player, Player.Direction / 2);
 
             FramesPerSecondCounter.Update(gameTime);
             base.Update(gameTime);
@@ -239,12 +262,18 @@ namespace RayEngine
                 activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
                     .RenderScreenFlash(ViewWidth, ViewHeight, Player)
-                    .DrawText($"{Player.Location} {Player.Direction} {Player.Plane} {GameVector.CardinalDirections8Names[Player.Direction.CardinalDirection8Index]}", 0, 0, 255, 200, 200, 255)
+                    //.DrawText($"{Player.Location} {Player.Direction} {Player.Plane} {GameVector.CardinalDirections8Names[Player.Direction.CardinalDirection8Index]}", 0, 0, 255, 200, 200, 255)
 
             );
-            GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-            var compass = CompassTextures[Player.Direction.CardinalDirection8Index];
-            GameScreen.SpriteBatch.Draw(compass, new Rectangle(ViewWidth + 32, 32, 64, 64), Color.White);
+            GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
+            
+            var midX = ViewWidth + (Graphics.PreferredBackBufferWidth - ViewWidth) / 2;
+            var face = FaceTextures[0];
+            GameScreen.SpriteBatch
+                .DrawTexture(CompassBase, midX - 75, 32, 150, 150)
+                .DrawTexture(CompassNeedle, midX - 75, 32, 150, 150, Player.Direction.Atan2())
+                .DrawTexture(FaceTextures[Player.Face], midX - 75, ViewHeight - 160, 150, 150)
+            ;
             GameScreen.SpriteBatch.End();
 
             FramesPerSecondCounter.Draw(gameTime);

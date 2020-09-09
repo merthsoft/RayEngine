@@ -20,7 +20,7 @@ namespace RayEngine
         {
             var viewMatrix = Matrix.Identity;
             var projectionMatrix = Matrix.CreateOrthographicOffCenter(left, right, bottom, top, zNearPlane, zFarPlane);
-            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, transformMatrix: viewMatrix);
+            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, transformMatrix: viewMatrix);
             PrimitiveBatch.Begin(ref projectionMatrix, ref viewMatrix);
             action(this);
             PrimitiveBatch.End();
@@ -35,7 +35,7 @@ namespace RayEngine
 
         public IActiveRenderer PlotPoint(float x, float y, int a, int r, int g, int b)
         {
-            PrimitiveDrawing.DrawSegment(new(x, y), new(x + 1, y + 1), new(r, g, b, a));
+            PrimitiveDrawing.DrawSegment(new(x, y), new(x + 1, y + 1), Color.FromNonPremultiplied(r, g, b, a));
             return this;
         }
 

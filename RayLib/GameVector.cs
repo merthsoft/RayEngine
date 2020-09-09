@@ -7,8 +7,8 @@ namespace RayLib
     public record GameVector : IEquatable<GameVector>
     {
         public static GameVector Zero = new GameVector(0, 0);
-        // TODO: These are wrong
-        public static GameVector North = (0, -1);
+        
+        public static GameVector North = (0, 1);
         public static GameVector NorthEast = (.71, .71);
         public static GameVector East = (1, 0);
         public static GameVector SouthEast = (.71, -.71);
@@ -16,6 +16,16 @@ namespace RayLib
         public static GameVector SouthWest = (-.71, -.71);
         public static GameVector West = (-1, 0);
         public static GameVector NorthWest = (-.71, .71);
+
+        // TODO: Fix these
+        public static GameVector NorthPlane = (-.66, 0);
+        public static GameVector NorthEastPlane = (.71, .71);
+        public static GameVector EastPlane = (1, 0);
+        public static GameVector SouthEastPlane = (.71, -.71);
+        public static GameVector SouthPlane = (.66, 0);
+        public static GameVector SouthWestPlane = (-.71, -.71);
+        public static GameVector WestPlane = (-1, 0);
+        public static GameVector NorthWestPlane = (-.71, .71);
 
         public static GameVector[] CardinalDirections4 = new[] { East, North, West, South };
         public static GameVector[] CardinalDirections8 = new[] { East, NorthEast, North, NorthWest, West, SouthWest, South, SouthEast };
@@ -27,8 +37,8 @@ namespace RayLib
         public double Y { get; }
 
         public double Angle => Atan2().ToDegrees();
-        public int CardinalDirection4Index => Angle.CardinalDirection4Index();
-        public int CardinalDirection8Index => Angle.CardinalDirection8Index();
+        public int CardinalDirection4Index => Angle.CardinalDirection4IndexDegrees();
+        public int CardinalDirection8Index => Angle.CardinalDirection8IndexDegrees();
 
         public static GameVector operator +(GameVector lhs, GameVector rhs)
             => (lhs.X + rhs.X, lhs.Y + rhs.Y);
@@ -57,6 +67,12 @@ namespace RayLib
 
         public static GameVector operator *(int lhs, GameVector rhs)
             => (lhs * rhs.X, lhs * rhs.Y);
+
+        public static GameVector operator +(GameVector lhs, double rhs)
+            => (lhs.X + rhs, lhs.Y + rhs);
+
+        public static GameVector operator +(double lhs, GameVector rhs)
+            => (lhs + rhs.X, lhs + rhs.Y);
 
         public static bool operator ==(GameVector lhs, (double x, double y) rhs)
             => lhs.X == rhs.x

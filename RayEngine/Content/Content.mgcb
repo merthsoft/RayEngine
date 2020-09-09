@@ -23,20 +23,40 @@
 /processorParam:TextureFormat=Compressed
 /build:DefaultFont.spritefont
 
-#begin Sprites/Actors/AtmBucket/1.bmp
+#begin Sprites/Actors/AtmBucket/Idle.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor
-/build:Sprites/Actors/AtmBucket/1.bmp
+/build:Sprites/Actors/AtmBucket/Idle.bmp
+
+#begin Sprites/Actors/AtmBucket/Wakeup.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Actors/AtmBucket/Wakeup.bmp
+
+#begin Sprites/Actors/AtmBucket/Walk.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Actors/AtmBucket/Walk.bmp
 
 #begin Sprites/Actors/Rat/1.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor
 /build:Sprites/Actors/Rat/1.bmp
 
+#begin Sprites/Actors/Spider/1.png
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Actors/Spider/1.png
+
 #begin Sprites/Actors/WaterMelon/1.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor
 /build:Sprites/Actors/WaterMelon/1.bmp
+
+#begin Sprites/Static/Bucket.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Static/Bucket.bmp
 
 #begin Sprites/Static/GreyWellBlood.bmp
 /importer:ImageImporter
@@ -48,12 +68,17 @@
 /processor:RayTextureProcessor
 /build:Sprites/Static/GreyWellFull.bmp
 
+#begin Sprites/Static/Pillar.png
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Static/Pillar.png
+
 #begin Sprites/Static/Vines.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor
 /build:Sprites/Static/Vines.bmp
 
-#begin Ux/Compass/0.png
+#begin Ux/Compass/Base.bmp
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -63,9 +88,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Ux/Compass/0.png
+/build:Ux/Compass/Base.bmp
 
-#begin Ux/Compass/1.png
+#begin Ux/Compass/Needle.bmp
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -75,9 +100,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Ux/Compass/1.png
+/build:Ux/Compass/Needle.bmp
 
-#begin Ux/Compass/2.png
+#begin Ux/Face/Forward.bmp
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -87,9 +112,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Ux/Compass/2.png
+/build:Ux/Face/Forward.bmp
 
-#begin Ux/Compass/3.png
+#begin Ux/Face/Left.bmp
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -99,9 +124,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Ux/Compass/3.png
+/build:Ux/Face/Left.bmp
 
-#begin Ux/Compass/4.png
+#begin Ux/Face/Right.bmp
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -111,9 +136,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Ux/Compass/4.png
+/build:Ux/Face/Right.bmp
 
-#begin Ux/Compass/5.png
+#begin Ux/Face/Surprised.bmp
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -123,31 +148,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Ux/Compass/5.png
-
-#begin Ux/Compass/6.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Ux/Compass/6.png
-
-#begin Ux/Compass/7.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Ux/Compass/7.png
+/build:Ux/Face/Surprised.bmp
 
 #begin Walls/Brown0.bmp
 /importer:ImageImporter
@@ -159,16 +160,6 @@
 /processor:RayTextureProcessor
 /build:Walls/Brown1.bmp
 
-#begin Walls/RedBricks0.bmp
-/importer:ImageImporter
-/processor:RayTextureProcessor
-/build:Walls/RedBricks0.bmp
-
-#begin Walls/RedBricks1.bmp
-/importer:ImageImporter
-/processor:RayTextureProcessor
-/build:Walls/RedBricks1.bmp
-
 #begin Walls/GreyBricks0.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor
@@ -178,6 +169,16 @@
 /importer:ImageImporter
 /processor:RayTextureProcessor
 /build:Walls/GreyBricks1.bmp
+
+#begin Walls/RedBricks0.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/RedBricks0.bmp
+
+#begin Walls/RedBricks1.bmp
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Walls/RedBricks1.bmp
 
 #begin Walls/RedBricksMulticolored0.bmp
 /importer:ImageImporter

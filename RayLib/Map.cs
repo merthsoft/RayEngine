@@ -3,6 +3,7 @@ using RayLib.Intersections;
 using RayLib.Objects;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace RayLib
@@ -15,6 +16,7 @@ namespace RayLib
         private List<Actor> Actors { get; } = new();
 
         public (int w, int h) Size { get; private set; }
+        public (int w, int h) ViewSize { get; set; }
         public int NumLayers => Walls.Count;
 
         public Map(int width, int height, string simpleMap, Action<Map, int, int, char> generator)
@@ -69,7 +71,64 @@ namespace RayLib
             spot.Remove(obj);
         }
 
-        public Step Update(Player player, int viewWidth, int viewHeight, GameVector viewOffset)
+        public IEnumerable<GameObject> ObjectsInSight(GameObject baseObject, GameVector viewOffset)
+        {
+            // TODO: Largely taken from Update. Merge.
+            var (viewWidth, _) = ViewSize;
+            var (posX, posY) = baseObject.Location - viewOffset;
+
+            var screenX = 0;
+            for (var x = viewWidth - 1; x >= 0; x--)
+            {
+                var (mapX, mapY) = baseObject.Location.Floor();
+                var cameraX = 2.0 * x / viewWidth - 1.0;
+                var rayDir = baseObject.Direction + baseObject.Plane * cameraX;
+                var (deltaDistX, deltaDistY) = (1 / rayDir).Abs();
+
+                (var stepX, var sideDistX) = rayDir.X < 0
+                    ? (-1, (posX - mapX) * deltaDistX)
+                    : (1, (mapX + 1.0 - posX) * deltaDistX);
+
+                (var stepY, var sideDistY) = rayDir.Y < 0
+                    ? (-1, (posY - mapY) * deltaDistY)
+                    : (1, (mapY + 1.0 - posY) * deltaDistY);
+
+                var wall = WallDef.Empty;
+                var blocked = false;
+                while (wall == WallDef.Empty && !blocked)
+                {
+                    if (sideDistX < sideDistY)
+                    {
+                        sideDistX += deltaDistX;
+                        mapX += stepX;
+                    }
+                    else
+                    {
+                        sideDistY += deltaDistY;
+                        mapY += stepY;
+                    }
+
+                    if (mapX < 0 || mapY < 0 || mapX > Size.w || mapY > Size.h)
+                        break;
+
+                    wall = Walls[0][(int)mapX][(int)mapY];
+                    var lineObjects = ObjectMap[0][(int)mapX][(int)mapY];
+                    foreach (var obj in lineObjects)
+                    {
+                        yield return obj;
+                        if (obj.BlocksView)
+                            blocked = true;
+                    }
+                }
+
+                if (wall == WallDef.Empty)
+                    break;
+
+                screenX++;
+            }
+        }
+
+        public Step Update(Player player, GameVector viewOffset)
         {
             Actors.ForEach(a =>
             {
@@ -77,6 +136,8 @@ namespace RayLib
                 a.Act(this, player);
                 AddToObjectMap(a);
             });
+
+            var (viewWidth, viewHeight) = ViewSize;
 
             var intersections = new List<Intersection>();
             var zbuffer = new double[viewWidth];
@@ -204,6 +265,7 @@ namespace RayLib
         public GameObject SpawnObject(int layer, int x, int y, StaticObjectDef def)
         {
             var obj = new StaticObject(def, x, y);
+            Debug.WriteLine($"Spawning {obj.Def.Name} at {obj.Location}");
             StaticObjects.Add(obj);
             AddToObjectMap(obj);
             return obj;
@@ -211,10 +273,11 @@ namespace RayLib
 
         public GameObject SpawnActor<T>(int layer, int x, int y, ActorDef def) where T : Actor, new()
         {
-            var w = new T() { Def = def , Location = (x + .5, y + .5) };
-            Actors.Add(w);
-            AddToObjectMap(w);
-            return w;
+            var obj = new T() { Def = def , Location = (x + .5, y + .5) };
+            Debug.WriteLine($"Spawning {obj.Def.Name} at {obj.Location}");
+            Actors.Add(obj);
+            AddToObjectMap(obj);
+            return obj;
         }
 
         public void ClearPlayer(Player player)
@@ -240,7 +303,7 @@ namespace RayLib
         
         public IEnumerable<GameVector> GetNeighbors(GameVector root)
         {
-            foreach (var direction in GameVector.CardinalDirections8)
+            foreach (var direction in GameVector.CardinalDirections8.Select(v => v.Round(0)))
             {
                 var n = root + direction;
                 if (!BlockedAt(0, n, false))

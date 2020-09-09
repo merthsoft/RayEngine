@@ -6,17 +6,18 @@ namespace RayLib.Defs
     public record StaticObjectDef : Def
     {
         public bool Blocking { get; }
+        public bool BlocksView { get; }
         public List<RayTexture> Textures { get; }
         public GameVector Direction { get; protected set; } = (0, 0);
 
-        public StaticObjectDef(string name, bool blocking, params RayTexture[] textures)
+        public StaticObjectDef(string name, bool blocking, bool blocksView, params RayTexture[] textures)
             : base(name, textures.First().Size)
-        => (Blocking, Textures)
-         = (blocking, textures.ToList());
+        => (Blocking, BlocksView, Textures)
+         = (blocking, blocksView, textures.ToList());
 
-        public StaticObjectDef(string name, bool blocking, GameVector direction, params RayTexture[] textures)
+        public StaticObjectDef(string name, bool blocking, bool blocksView, GameVector direction, params RayTexture[] textures)
             : base(name, textures.First().Size)
-        => (Blocking, Direction, Textures)
-         = (blocking, direction, textures.ToList());
+        => (Blocking, BlocksView, Direction, Textures)
+         = (blocking, blocksView, direction, textures.ToList());
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
+using RayEngine.Actors;
 using RayLib;
-using RayLib.Objects;
 using System;
 
 namespace RayEngine
@@ -23,7 +23,7 @@ namespace RayEngine
             return screen;
         }
 
-        public static IActiveRenderer RenderScreenFlash(this IActiveRenderer screen, int viewWidth, int viewHeight, Player player)
+        public static IActiveRenderer RenderScreenFlash(this IActiveRenderer screen, int viewWidth, int viewHeight, GamePlayer player)
         {
             if (player.ScreenFlashDuration == 0)
                 return screen;
