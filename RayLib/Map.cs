@@ -19,25 +19,31 @@ namespace RayLib
         public (int w, int h) ViewSize { get; set; }
         public int NumLayers => Walls.Count;
 
-        public Map(int width, int height, string simpleMap, Action<Map, int, int, char> generator)
-            : this(width, height, 1)
+        public Map(int viewWidth, int viewHeight, string simpleMap, Action<Map, int, int, char> generator)
         {
-            var i = 0;
-            foreach (var line in simpleMap.Split('\n').Select(s => s.Trim()))
+            var splitMap = simpleMap.Split("\n").Select(s => s.Trim()).Reverse().ToArray();
+            SetSizes(splitMap[0].Length, splitMap.Length, 1, viewWidth, viewHeight);
+
+            var y = 0;
+            foreach (var line in splitMap)
             {
-                var j = 0;
+                var x = 0;
                 foreach (var c in line)
                 {
-                    generator(this, i, j, c);
-                    j++;
+                    generator(this, x, y, c);
+                    x++;
                 }
-                i++;
+                y++;
             }
         }
         
-        public Map(int width, int height, int layers)
+        public Map(int width, int height, int layers, int viewWidth, int viewHeight)
+            => SetSizes(width, height, layers, viewWidth, viewHeight);
+
+        private void SetSizes(int width, int height, int layers, int viewWidth, int viewHeight)
         {
             Size = (width, height);
+            ViewSize = (viewWidth, viewHeight);
             for (var l = 0; l < layers; l++)
             {
                 var wallLayer = new List<List<WallDef>>();
@@ -180,7 +186,7 @@ namespace RayLib
                         eastWall = true;
                     }
 
-                    if (mapX < 0 || mapY < 0 || mapX > Size.w || mapY > Size.h)
+                    if (mapX < 0 || mapY < 0 || mapX >= Size.w || mapY >= Size.h)
                         break;
 
                     wall = Walls[0][(int)mapX][(int)mapY];

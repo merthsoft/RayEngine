@@ -133,31 +133,31 @@ namespace RayEngine
                 Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Walk")
             );
 
-            Map = new Map(24, 24,
-                    simpleMap: @"000000000000000000000000
-                                 0                      0
-                                 0                      0
-                                 0     000000000000     0
-                                 0     0      s   0     0
-                                 0     0          0     0
-                                 0     0IIII     B0    a0
-                                 0     0   I s    0     0
-                                 0     0   I    sB0B   B0
-                                 0    *00~000000000000000
-                                 0                      0
-                                 0                      0
-                                 0       I       BI     0
-                                 0                      0
-                                 0                      0
-                                 0B B                B  0
-                                 03~33333333            0
-                                 03 3   aaB3B     I     0
-                                 03 |   xaa3   B    B   0
-                                 03 3   aaa3            0
-                                 03 33333333B           0
-                                 03      ~              0
-                                 033333333B   B   I  BBB0
-                                 000000000000000000000000",
+            Map = new Map(ViewWidth, ViewHeight,
+                    simpleMap: @"0000000000000000000000000000000000000000000000000000
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0000000000000000000000000                          0
+                                 0v   I     I    BI      0                          0
+                                 0                       0                          0
+                                 0         B    B        0                          0
+                                 0B B                B   0                          0
+                                 0       B               0                          3
+                                 0    I     I     I      0                          3
+                                 0                       0                          3
+                                 0      BB     B         0                          3
+                                 0                       |                          3
+                                 0BBBB BBBB  BBBB  BBBBBB0                          0
+                                 0BBBBIBBBBBIBBBBBIBBBBBB0                          0
+                                 0000000000000000000000000000000000000000000000000000",
                     generator: (Map map, int i, int j, char c) =>
                     {
                         if (char.IsDigit(c))
@@ -185,12 +185,13 @@ namespace RayEngine
                             map.SpawnActor<Sleeper>(0, i, j, atmBucket)
                                 .SetDirection(GameVector.South)
                                 .SetFieldOfView(2);
+                        else if ("<^>v".Contains(c))
+                            Player
+                                .SetLocation((i, j))
+                                .SetDirection(GameVector.CardinalDirections4["<^>v".IndexOf(c)]);
                         else
                             map.SetWall(0, i, j, WallDef.Empty);
-                    })
-            {
-                ViewSize = (ViewWidth, ViewHeight)
-            };
+                    });
         }
 
         protected override void Update(GameTime gameTime)
