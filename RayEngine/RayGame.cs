@@ -124,6 +124,10 @@ namespace RayEngine
             var pillar = new StaticObjectDef(
                 name: "Pillar", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/Pillar"));
+            
+            var door = new StaticObjectDef(
+                name: "Door", blocking: true, blocksView: true,
+                Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Closed"));
 
             var spider = new ActorDef("Spider", blocksView: false, 
                 Content.Load<RayTexture>("Sprites/Actors/Spider/1"));
@@ -146,7 +150,7 @@ namespace RayEngine
                                  0                                                  0
                                  0                                                  0
                                  0                                                  0
-                                 0~00000000000000000000000                          0
+                                 0-00000000000000000000000                          0
                                  0v   I     I    BI      0                          0
                                  0                       0                          0
                                  0         B    B        0                          0
@@ -170,10 +174,10 @@ namespace RayEngine
                         }
                         else if (c == '*')
                             map.SpawnObject(0, i, j, well);
-                        else if (c == '~')
-                            map.SpawnObject(0, i, j, vines).Direction = GameVector.North;
+                        else if (c == '-')
+                            map.SpawnObject(0, i, j, door).Direction = GameVector.North;
                         else if (c == '|')
-                            map.SpawnObject(0, i, j, vines).Direction = GameVector.East;
+                            map.SpawnObject(0, i, j, door).Direction = GameVector.East;
                         else if (c == 'x')
                             map.SpawnObject(0, i, j, bloodyWell);
                         else if (c == 'B')

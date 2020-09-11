@@ -4,7 +4,7 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace RayEngine
 {
-    [ContentImporter(".bmp", ".gif", ".png",
+    [ContentImporter(".bmp", ".gif", ".png", ".jpg",
         DefaultProcessor = "RayTextureProcessor", DisplayName = "Image Importer - RayEngine")]
     public class ImageImporter : ContentImporter<Image>
     {

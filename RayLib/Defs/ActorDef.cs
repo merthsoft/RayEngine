@@ -5,7 +5,9 @@ namespace RayLib.Defs
 {
     public record ActorDef : Def
     {
-        public static new ActorDef Empty { get; } = new("<EMPTY>", 0, 0);
+        public new static ActorDef Empty { get; } = new("<EMPTY>", 0, 0);
+
+        public override string DefName => nameof(ActorDef);
 
         public bool BlocksView { get; }
         public List<RayTexture> Textures { get; } = new();

@@ -53,6 +53,11 @@
 /processor:RayTextureProcessor
 /build:Sprites/Actors/WaterMelon/1.bmp
 
+#begin Sprites/Interactable/WoodenDoor/Closed.png
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Interactable/WoodenDoor/Closed.png
+
 #begin Sprites/Static/Bucket.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor

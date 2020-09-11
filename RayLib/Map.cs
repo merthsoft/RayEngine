@@ -212,8 +212,8 @@ namespace RayLib
                             continue;
                         }
 
-                        //(distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX - .5, mapY - .5, rayDir, eastWall, stepX, stepY, obj.Def);
-                        //intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2()));
+                        (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, eastWall, stepX, stepY, obj.Def);
+                        intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2()));
                     }
                 }
 
