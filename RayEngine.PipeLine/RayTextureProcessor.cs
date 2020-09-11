@@ -23,7 +23,7 @@ namespace RayEngine
 
                 }));
             }
-
+            
             var ret = new RayTexture(input.Width, input.Height);
             for (int x = 0; x < input.Width; x++)
                 for (int y = 0; y < input.Height; y++)

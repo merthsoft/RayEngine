@@ -1,5 +1,6 @@
 ﻿using RayLib.Defs;
 using System;
+using System.Collections.Generic;
 
 namespace RayLib.Objects
 {
@@ -54,6 +55,8 @@ namespace RayLib.Objects
         public GameObject(Def def)
             => Def = def;
 
+        public abstract void Initialize();
+
         public abstract RayTexture GetTexture(double viewAngle);
 
         public GameObject SetLocation(GameVector v)
@@ -73,5 +76,17 @@ namespace RayLib.Objects
             FieldOfView = fieldOfView;
             return this;
         }
+
+        public static RayTexture GetTextureFromAngle(IList<RayTexture> textures, double viewAngle)
+            => textures.Count switch
+             {
+                 0 => RayTexture.Empty,
+                 1 => textures[0],
+                 2 => textures[viewAngle.CardinalDirection2IndexDegrees()],
+                 4 => textures[viewAngle.CardinalDirection4IndexDegrees()],
+                 8 => textures[viewAngle.CardinalDirection8IndexDegrees()],
+                 _ => textures[0],
+             }
+        ;
     }
 }

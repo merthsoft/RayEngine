@@ -19,10 +19,27 @@ namespace RayLib
         public (int w, int h) ViewSize { get; set; }
         public int NumLayers => Walls.Count;
 
-        public Map(int viewWidth, int viewHeight, string simpleMap, Action<Map, int, int, char> generator)
+        public Map(int viewWidth, int viewHeight, string simpleMap, Action<Map, int, int, char, char[,]> generator)
         {
-            var splitMap = simpleMap.Split("\n").Select(s => s.Trim()).Reverse().ToArray();
+            var splitMap = simpleMap.Split("\n").Select(s => s.Trim().ToArray()).Reverse().ToArray();
             SetSizes(splitMap[0].Length, splitMap.Length, 1, viewWidth, viewHeight);
+
+            var neighbors = new[,] { { '\0', '\0', '\0' }, { '\0', '\0', '\0' }, { '\0', '\0', '\0' } };
+            void ExtractNeighbors(char[][] splitMap, int x, int y)
+            {
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        var entry = ' ';
+                        var neighborX = i + x;
+                        var neighborY = j + y;
+                        if (neighborX >= 0 && neighborY >= 0 && neighborX < Size.w && neighborY < Size.h)
+                            entry = splitMap[neighborY][neighborX];
+                        neighbors[i + 1, j + 1] = entry;
+                    }
+                }
+            }
 
             var y = 0;
             foreach (var line in splitMap)
@@ -30,13 +47,14 @@ namespace RayLib
                 var x = 0;
                 foreach (var c in line)
                 {
-                    generator(this, x, y, c);
+                    ExtractNeighbors(splitMap, x, y);
+                    generator(this, x, y, c, neighbors);
                     x++;
                 }
                 y++;
             }
         }
-        
+
         public Map(int width, int height, int layers, int viewWidth, int viewHeight)
             => SetSizes(width, height, layers, viewWidth, viewHeight);
 
@@ -213,7 +231,7 @@ namespace RayLib
                         }
 
                         (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, eastWall, stepX, stepY, obj.Def);
-                        intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2()));
+                        intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, (player.Location - (obj.Location.X, obj.Location.Y)).Atan2().ToDegrees()));
                     }
                 }
 
@@ -222,7 +240,7 @@ namespace RayLib
                     (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, eastWall, stepX, stepY, wall);
                     zbuffer[screenX] = distance;
                     if (!blocked)
-                        intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2(), !eastWall));
+                        intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2().ToDegrees(), !eastWall));
                 }
                 screenX++;
             }
@@ -301,19 +319,22 @@ namespace RayLib
         public void SetWall(int layer, int x, int y, WallDef wall)
             => Walls[layer][x][y] = wall;
 
-        public GameObject SpawnObject(int layer, int x, int y, StaticObjectDef def)
+        public GameObject SpawnObject(int layer, int x, int y, StaticObjectDef def, GameVector? direction = null)
         {
             var obj = new StaticObject(def, x, y);
-            Debug.WriteLine($"Spawning {obj.Def.Name} at {obj.Location}");
+            if (direction != null)
+                obj.Direction = direction;
+            obj.Initialize();
             StaticObjects.Add(obj);
             AddToObjectMap(layer, obj);
             return obj;
         }
 
-        public GameObject SpawnActor<T>(int layer, int x, int y, ActorDef def) where T : Actor, new()
+        public T SpawnActor<T>(int layer, int x, int y, ActorDef def, GameVector? direction = null, double fov = .75, Action<T>? preInit = null) where T : Actor, new()
         {
-            var obj = new T() { Def = def , Location = (x + .5, y + .5) };
-            Debug.WriteLine($"Spawning {obj.Def.Name} at {obj.Location}");
+            var obj = new T() { Def = def , Location = (x + .5, y + .5), Direction = direction ?? GameVector.Zero, FieldOfView = fov };
+            preInit?.Invoke(obj);
+            obj.Initialize();
             Actors.Add(obj);
             AddToObjectMap(layer, obj);
             return obj;

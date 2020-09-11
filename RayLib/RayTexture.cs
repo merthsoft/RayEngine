@@ -14,7 +14,7 @@ namespace RayLib
         public ColorStrip this[int col]
             => ColorStrips[col];
 
-        public (int a, int r, int g, int b) this[int x, int y]
+        public GameColor this[int x, int y]
             => ColorStrips[x][y];
 
         protected RayTexture()
@@ -22,6 +22,10 @@ namespace RayLib
 
         public RayTexture(int w, int h)
             => Size = (w, h);
+
+        public RayTexture((int w, int h) size, IEnumerable<ColorStrip> strips)
+            : this(size.w, size.h)
+            => ColorStrips.AddRange(strips);
 
         private ColorStrip NewStrip()
         {
@@ -37,6 +41,9 @@ namespace RayLib
                 strip = NewStrip();
             strip.Add(a, r, g, b);
         }
+
+        public RayTexture Zip(RayTexture other)
+            => new(Size, ColorStrips.Zip(other.ColorStrips, (cs1, cs2) => cs1.Zip(cs2)));
 
         #region IEnumerable<ColorStrip>
         public IEnumerator<ColorStrip> GetEnumerator() => ((IEnumerable<ColorStrip>)ColorStrips).GetEnumerator();

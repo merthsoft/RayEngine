@@ -5,7 +5,18 @@ namespace RayLib
     public static class DoubleExtensions
     {
         public static int CardinalDirection2IndexDegrees(this double angle)
-            => angle <= 0 ? 0 : 1;
+            => angle switch
+            {
+                0 => 1,
+                <= 45 => 0,
+                90 => 0,
+                < 135 => 1,
+                180 => 1,
+                <= 225 => 0,
+                270 => 0,
+                < 315 => 1,
+                _ => 0
+            };
 
         public static int CardinalDirection4IndexDegrees(this double angle) 
             => (int)(((angle + 30) % 360) / 60);
@@ -63,11 +74,6 @@ namespace RayLib
             => (value.Item1.Ceiling(), value.Item2.Ceiling());
 
         public static double ToDegrees(this double radians)
-        {
-            var ret = (180 / Math.PI) * radians;
-            if (ret < 0)
-                ret += 360;
-            return ret % 360;
-        }
+            => ((180 / Math.PI) * radians + 360) % 360;
     }
 }

@@ -14,16 +14,11 @@ namespace RayLib.Objects
             => (Direction, Location)
              = (def.Direction, (x + .5, y + .5));
 
+        public override void Initialize() { }
+
         public override RayTexture GetTexture(double viewAngle)
             => Direction == GameVector.Zero
              ? Textures[0]
-             : Textures.Count switch
-             {
-                 2 => Textures[viewAngle.CardinalDirection2IndexDegrees()],
-                 4 => Textures[viewAngle.CardinalDirection4IndexDegrees()],
-                 8 => Textures[viewAngle.CardinalDirection8IndexDegrees()],
-                 _ => Textures[0],
-             }
-        ;
+             : GetTextureFromAngle(Textures, viewAngle);
     }
 }

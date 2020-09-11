@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace RayLib.Defs
+﻿namespace RayLib.Defs
 {
     public record ActorDef : Def
     {
@@ -10,18 +7,15 @@ namespace RayLib.Defs
         public override string DefName => nameof(ActorDef);
 
         public bool BlocksView { get; }
-        public List<RayTexture> Textures { get; } = new();
+        public RayTexture[][] Textures { get; }
 
-        public ActorDef(string name, bool blocksView, params RayTexture[] textures)
-            : base(name, textures.First().Size)
-        {
-            Textures = textures.ToList();
-            BlocksView = blocksView;
-        }
+        public ActorDef(string name, bool blocksView, params RayTexture[][] textures)
+            : base(name, textures[0][0].Size)
+            => (Textures, BlocksView)
+             = (textures, blocksView);
 
         protected ActorDef(string name, int w, int h)
             : base(name, w, h)
-        {
-        }
+            => Textures = new[] { new RayTexture[0] };
     }
 }

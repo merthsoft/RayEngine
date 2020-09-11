@@ -11,11 +11,11 @@ namespace RayLib.Intersections
         public int Bottom { get; }
         public double Distance { get; }
         public int Height { get; }
-        public double Angle { get; set; }
+        public double ViewAngleDegrees { get; set; }
 
-        protected Intersection(Def def, int screenX, int textureX, int top, int bottom, double distance, int height, double angle)
-            => (Def, ScreenX, TextureX, Top, Bottom, Distance, Height, Angle)
-             = (def, screenX, textureX, top, bottom, distance, height, angle);
+        protected Intersection(Def def, int screenX, int textureX, int top, int bottom, double distance, int height, double viewAngleDegrees)
+            => (Def, ScreenX, TextureX, Top, Bottom, Distance, Height, ViewAngleDegrees)
+             = (def, screenX, textureX, top, bottom, distance, height, viewAngleDegrees);
 
         public abstract RayTexture GetTexture();
 

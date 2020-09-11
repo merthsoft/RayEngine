@@ -125,17 +125,17 @@ namespace RayEngine
                 name: "Pillar", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/Pillar"));
             
-            var door = new StaticObjectDef(
-                name: "Door", blocking: true, blocksView: true,
-                Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Closed"));
+            var door = new ActorDef(
+                name: "Door", blocksView: true,
+                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Closed") });
 
-            var spider = new ActorDef("Spider", blocksView: false, 
-                Content.Load<RayTexture>("Sprites/Actors/Spider/1"));
+            var spider = new ActorDef("Spider", blocksView: false,
+               new[] { Content.Load<RayTexture>("Sprites/Actors/Spider/1") });
 
             var atmBucket = new ActorDef("Atm", blocksView: false,
-                Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Idle"),
-                Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Wakeup"),
-                Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Walk")
+                new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Idle") },
+                new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Wakeup") },
+                new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Walk") }
             );
 
             Map = new Map(ViewWidth, ViewHeight,
@@ -150,20 +150,20 @@ namespace RayEngine
                                  0                                                  0
                                  0                                                  0
                                  0                                                  0
-                                 0-00000000000000000000000                          0
-                                 0v   I     I    BI      0                          0
-                                 0                       0                          0
+                                 03330-0000003-30000000000                          0
+                                 0>         I    BI      0                          0
+                                 0                       |                          0
                                  0         B    B        0                          0
-                                 0B B                B   0                          0
-                                 0       B               0                          3
-                                 0    I     I     I      0                          3
+                                 0B B                B   3                          0
+                                 0       B               |                          3
+                                 0    I     I     I      3                          3
                                  0                       0                          3
                                  0      BB     B         0                          3
-                                 0                       |                          3
-                                 0BBBB BBBB  BBBB  BBBBBB0                          0
+                                 0                       0                          3
+                                 0BBBB BBBB  BBBB        0                          0
                                  0BBBBIBBBBBIBBBBBIBBBBBB0                          0
                                  0000000000000000000000000000000000000000000000000000",
-                    generator: (Map map, int i, int j, char c) =>
+                    generator: (Map map, int i, int j, char c, char[,] neighbors) =>
                     {
                         if (char.IsDigit(c))
                         {
@@ -174,10 +174,13 @@ namespace RayEngine
                         }
                         else if (c == '*')
                             map.SpawnObject(0, i, j, well);
-                        else if (c == '-')
-                            map.SpawnObject(0, i, j, door).Direction = GameVector.North;
-                        else if (c == '|')
-                            map.SpawnObject(0, i, j, door).Direction = GameVector.East;
+                        else if (c == '-' || c == '|')
+                        {
+                            var direction = c == '-' ? GameVector.East : GameVector.North;
+                            var neighborWall = neighbors[(int)direction.X + 1, (int)direction.Y + 1];
+                            map.SpawnActor<Door>(0, i, j, door, GameVector.North,
+                                preInit: door => door.BackWall = WallDefs[int.Parse(neighborWall.ToString())]);
+                        }
                         else if (c == 'x')
                             map.SpawnObject(0, i, j, bloodyWell);
                         else if (c == 'B')
@@ -185,15 +188,13 @@ namespace RayEngine
                         else if (c == 'I')
                             map.SpawnObject(0, i, j, pillar);
                         else if (c == 's')
-                            map.SpawnActor<Wanderer>(0, i, j, spider).Direction = GameVector.East;
+                            map.SpawnActor<Wanderer>(0, i, j, spider, GameVector.East);
                         else if (c == 'a')
-                            map.SpawnActor<Sleeper>(0, i, j, atmBucket)
-                                .SetDirection(GameVector.South)
-                                .SetFieldOfView(2);
-                        else if ("<^>v".Contains(c))
+                            map.SpawnActor<Sleeper>(0, i, j, atmBucket, GameVector.South, 1);
+                        else if (">^<v".Contains(c))
                             Player
                                 .SetLocation((i, j))
-                                .SetDirection(GameVector.CardinalDirections4["<^>v".IndexOf(c)]);
+                                .SetDirection(GameVector.CardinalDirections4[">^<v".IndexOf(c)]);
                         else
                             map.SetWall(0, i, j, WallDef.Empty);
                     });
@@ -245,7 +246,7 @@ namespace RayEngine
             else if (keyboardState.IsKeyDown(Keys.OemMinus) && Player.FieldOfView > .01)
                 Player.FieldOfView = (Player.FieldOfView - .01).Round(2);
 
-            if (!Map.BlockedAt(0, (int)posX, (int)posY))
+            //if (!Map.BlockedAt(0, (int)posX, (int)posY))
             {
                 Map.ClearPlayer(Player);
                 Player.Location = (posX, posY).Floor().Add(.5);

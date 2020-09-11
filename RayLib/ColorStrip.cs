@@ -1,22 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RayLib
 {
-    public class ColorStrip : IEnumerable<(int a, int r, int g, int b)>
+    public class ColorStrip : IEnumerable<GameColor>
     {
-        public List<(int a, int r, int g, int b)> Strip { get; set; } = new();
+        public List<GameColor> Strip { get; set; }
 
         public int Count => Strip.Count;
 
-        public (int a, int r, int g, int b) this[int index]
+        public GameColor this[int index]
             => Strip[index];
 
-        public void Add(int a, int r, int g, int b)
-            => Strip.Add((a, r, g, b));
+        public ColorStrip()
+            => Strip = new List<GameColor>();
 
-        #region IEnumerable<(int a, int r, int g, int b)>
-        public IEnumerator<(int a, int r, int g, int b)> GetEnumerator() => ((IEnumerable<(int a, int r, int g, int b)>)Strip).GetEnumerator();
+        public ColorStrip(IEnumerable<GameColor> strip)
+            => Strip = strip.ToList();
+
+        public void Add(int a, int r, int g, int b)
+            => Strip.Add(new(a, r, g, b));
+
+        public ColorStrip Zip(ColorStrip strip)
+            => new(Strip.Zip(strip, (s1, s2) => s1.IsBlackTransparent ? s2 : s1));
+
+        #region IEnumerable<GameColor>
+        public IEnumerator<GameColor> GetEnumerator() => ((IEnumerable<GameColor>)Strip).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Strip).GetEnumerator();
         #endregion
     }

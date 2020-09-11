@@ -11,6 +11,6 @@ namespace RayLib.Intersections
             => Object = @object;
 
         public override RayTexture GetTexture()
-            => Object.GetTexture(Angle);
+            => Object.GetTexture(ViewAngleDegrees);
     }
 }

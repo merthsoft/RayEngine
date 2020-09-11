@@ -21,7 +21,10 @@ namespace RayLib.Objects
 
         }
 
+        public override void Initialize() { }
+
         public abstract void Act(Map map, Player player);
-        public override RayTexture GetTexture(double viewAngle) => ActorDef.Textures[TextureIndex];
+        public override RayTexture GetTexture(double viewAngle)
+            => GetTextureFromAngle(ActorDef.Textures[TextureIndex], viewAngle);
     }
 }
