@@ -2,7 +2,7 @@
 {
     public record WallDef : Def
     {
-        public override string DefName => nameof(Def);
+        public override string DefName => nameof(WallDef);
 
         public static new WallDef Empty { get; } = new WallDef("<EMPTY>", RayTexture.Empty, RayTexture.Empty);
 

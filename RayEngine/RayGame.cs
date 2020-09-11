@@ -115,7 +115,7 @@ namespace RayEngine
                 name: "GreyWellBlood", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
             var vines = new StaticObjectDef(
-                name: "Vines", blocking: false, blocksView: true,
+                name: "Vines", blocking: false, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/Vines/0"),
                 Content.Load<RayTexture>("Sprites/Static/Vines/1"));
             var bucket = new StaticObjectDef(

@@ -5,6 +5,8 @@ namespace RayLib.Defs
 {
     public record StaticObjectDef : Def
     {
+        public override string DefName => nameof(StaticObjectDef);
+
         public bool Blocking { get; }
         public bool BlocksView { get; }
         public List<RayTexture> Textures { get; }
