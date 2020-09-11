@@ -73,10 +73,15 @@
 /processor:RayTextureProcessor
 /build:Sprites/Static/Pillar.png
 
-#begin Sprites/Static/Vines.bmp
+#begin Sprites/Static/Vines/0.png
 /importer:ImageImporter
 /processor:RayTextureProcessor
-/build:Sprites/Static/Vines.bmp
+/build:Sprites/Static/Vines/0.png
+
+#begin Sprites/Static/Vines/1.png
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Static/Vines/1.png
 
 #begin Ux/Compass/Base.bmp
 /importer:TextureImporter

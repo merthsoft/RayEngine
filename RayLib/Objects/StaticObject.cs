@@ -16,9 +16,7 @@ namespace RayLib.Objects
 
         public override RayTexture GetTexture(double viewAngle)
             => Direction == GameVector.Zero
-             ? Textures.Count == 1
-                ? Textures[0]
-                : Textures[(int)viewAngle % (360 / StaticObjectDef.Textures.Count)]
+             ? Textures[0]
              : Textures.Count switch
              {
                  2 => Textures[viewAngle.CardinalDirection2IndexDegrees()],

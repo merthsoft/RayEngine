@@ -223,11 +223,12 @@ namespace RayLib
                 screenX++;
             }
 
+            (posX, posY) = player.Location - viewOffset;
             foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
             {
-                var locationDelta = obj.Location - (posX, posY);
+                var locationDelta = (obj.Location - (posX, posY)) ;
                 var angle = locationDelta.Atan2().ToDegrees();
-                var (spriteX, spriteY) = locationDelta - viewOffset*.7;
+                var (spriteX, spriteY) = locationDelta - viewOffset * .7;
                 var invDet = 1.0 / (planeX * dirY - dirX * planeY);
 
                 var transformX = invDet * (dirY * spriteX - dirX * spriteY);

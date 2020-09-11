@@ -116,7 +116,8 @@ namespace RayEngine
                 Content.Load<RayTexture>("Sprites/Static/GreyWellBlood"));
             var vines = new StaticObjectDef(
                 name: "Vines", blocking: false, blocksView: true,
-                Content.Load<RayTexture>("Sprites/Static/Vines"));
+                Content.Load<RayTexture>("Sprites/Static/Vines/0"),
+                Content.Load<RayTexture>("Sprites/Static/Vines/1"));
             var bucket = new StaticObjectDef(
                 name: "Bucket", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/Bucket"));
@@ -145,7 +146,7 @@ namespace RayEngine
                                  0                                                  0
                                  0                                                  0
                                  0                                                  0
-                                 0000000000000000000000000                          0
+                                 0~00000000000000000000000                          0
                                  0v   I     I    BI      0                          0
                                  0                       0                          0
                                  0         B    B        0                          0
@@ -258,7 +259,7 @@ namespace RayEngine
                 activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
                     .RenderScreenFlash(ViewWidth, ViewHeight, Player)
-                    //.DrawText($"{Player.Location} {Player.Direction} {Player.Plane} {GameVector.CardinalDirections8Names[Player.Direction.CardinalDirection8Index]}", 0, 0, 255, 200, 200, 255)
+                    .DrawText($"{Player.Location} {Player.Direction} {Player.Plane} {GameVector.CardinalDirections8Names[Player.Direction.CardinalDirection8Index]}", 0, 0, 255, 200, 200, 255)
 
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);

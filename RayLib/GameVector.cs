@@ -106,7 +106,7 @@ namespace RayLib
             => (Y, -X);
 
         public double Atan2()
-            => Y.Atan2(X);
+            => Math.Atan2(Y, X);
 
         public GameVector Floor()
             => (X.Floor(), Y.Floor());
