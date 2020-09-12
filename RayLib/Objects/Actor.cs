@@ -10,20 +10,24 @@ namespace RayLib.Objects
         public int TextureIndex { get; set; }
         public ActorDef ActorDef => (Def as ActorDef)!;
 
+        public int ActTimer { get; set; }
+
         public override bool Blocking => true;
         public override bool BlocksView => ActorDef.BlocksView;
 
         protected Actor()
             : base(ActorDef.Empty) { }
 
-        public Actor(ActorDef def) : base(def)
-        {
+        public Actor(ActorDef def) 
+            : base(def) { }
 
+        public virtual void Act(Map map, Player player)
+        {
+            ActTimer--;
+            if (ActTimer < 0)
+                ActTimer = 0;
         }
 
-        public override void Initialize() { }
-
-        public abstract void Act(Map map, Player player);
         public override RayTexture GetTexture(double viewAngle)
             => GetTextureFromAngle(ActorDef.Textures[TextureIndex], viewAngle);
     }

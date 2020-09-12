@@ -37,13 +37,13 @@ namespace RayEngine.Actors
             {
                 AwakeCounter--;
                 TextureIndex = 1;
-                MoveTimer = 1;
+                ActTimer = 1;
             }
             else if (AwakeCounter > 470)
             {
                 AwakeCounter--;
                 TextureIndex = 2;
-                MoveTimer = 1;
+                ActTimer = 1;
             }
             else
             {

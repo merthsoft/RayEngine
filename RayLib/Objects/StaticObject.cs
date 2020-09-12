@@ -14,8 +14,6 @@ namespace RayLib.Objects
             => (Direction, Location)
              = (def.Direction, (x + .5, y + .5));
 
-        public override void Initialize() { }
-
         public override RayTexture GetTexture(double viewAngle)
             => Direction == GameVector.Zero
              ? Textures[0]

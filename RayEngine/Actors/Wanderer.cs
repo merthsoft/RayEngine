@@ -7,6 +7,7 @@ namespace RayEngine.Actors
 {
     public class Wanderer : Actor
     {
+        // TODO: Make into ActTimer
         private int WalkTimer = 15;
         private int TurnTimer = 25;
 

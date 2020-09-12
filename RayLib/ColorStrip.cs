@@ -23,7 +23,7 @@ namespace RayLib
             => Strip.Add(new(a, r, g, b));
 
         public ColorStrip Zip(ColorStrip strip)
-            => new(Strip.Zip(strip, (s1, s2) => s1.IsBlackTransparent ? s2 : s1));
+            => new(Strip.Zip(strip, (s1, s2) => s1.IsWhiteTransparent ? s2 : s1));
 
         #region IEnumerable<GameColor>
         public IEnumerator<GameColor> GetEnumerator() => ((IEnumerable<GameColor>)Strip).GetEnumerator();

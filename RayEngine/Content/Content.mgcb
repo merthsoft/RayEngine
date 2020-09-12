@@ -58,6 +58,16 @@
 /processor:RayTextureProcessor
 /build:Sprites/Interactable/WoodenDoor/Closed.png
 
+#begin Sprites/Interactable/WoodenDoor/Open.png
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Interactable/WoodenDoor/Open.png
+
+#begin Sprites/Interactable/WoodenDoor/Opening.png
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Interactable/WoodenDoor/Opening.png
+
 #begin Sprites/Static/Bucket.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor

@@ -8,8 +8,6 @@ namespace RayEngine.Actors
 {
     public class Follower : Actor
     {
-        protected int MoveTimer = 300;
-
         public Follower() : base() { }
 
         public Follower(ActorDef actorDef)
@@ -17,14 +15,13 @@ namespace RayEngine.Actors
 
         public override void Act(Map map, Player player)
         {
+            base.Act(map, player);
             if (player is not GamePlayer gamePlayer)
                 return;
-
-            MoveTimer--;
             Direction = GameVector.CardinalDirections8[(Location - gamePlayer.Location).Atan2().ToDegrees().CardinalDirection8IndexDegrees()];
-            if (MoveTimer == 0)
+            if (ActTimer == 0)
             {
-                MoveTimer = Random.Next(10, 50);
+                ActTimer = Random.Next(10, 50);
                 var newLocation = map.FindPath(Location, gamePlayer.Location).FirstOrDefault();
                 if (newLocation == null)
                     newLocation = Location + Direction;

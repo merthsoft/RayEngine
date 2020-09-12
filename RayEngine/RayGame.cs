@@ -126,7 +126,9 @@ namespace RayEngine
             
             var door = new ActorDef(
                 name: "Door", blocksView: true,
-                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Closed") });
+                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Closed") },
+                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Opening") },
+                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Open") });
 
             var spider = new ActorDef("Spider", blocksView: false,
                new[] { Content.Load<RayTexture>("Sprites/Actors/Spider/1") });
@@ -178,7 +180,8 @@ namespace RayEngine
                             var direction = c == '-' ? GameVector.East : GameVector.North;
                             var neighborWall = neighbors[(int)direction.X + 1, (int)direction.Y + 1];
                             map.SpawnActor<Door>(0, i, j, door, direction,
-                                preInit: door => door.BackWall = WallDefs[int.Parse(neighborWall.ToString())]);
+                                preInit: door => door.BackWall = WallDefs[int.Parse(neighborWall.ToString())]
+                            );
                         }
                         else if (c == 'x')
                             map.SpawnObject(0, i, j, bloodyWell);
@@ -192,7 +195,7 @@ namespace RayEngine
                             map.SpawnActor<Sleeper>(0, i, j, atmBucket, GameVector.South, 1);
                         else if (">^<v".Contains(c))
                             Player
-                                .SetLocation((i, j))
+                                .SetLocation(i, j)
                                 .SetDirection(GameVector.CardinalDirections4[">^<v".IndexOf(c)]);
                         else
                             map.SetWall(0, i, j, WallDef.Empty);

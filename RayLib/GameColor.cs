@@ -7,7 +7,7 @@
         public int G { get; set; }
         public int B { get; set; }
 
-        public bool IsBlackTransparent => A == 0 && R == 255 && G == 255 && B == 255;
+        public bool IsWhiteTransparent => A == 0 && R == 255 && G == 255 && B == 255;
 
         public void Deconstruct(out int a, out int r, out int g, out int b)
             => (a, r, g, b)

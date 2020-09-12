@@ -31,8 +31,13 @@ namespace RayEngine.Actors
         }
 
         public override void Act(Map map, Player player)
-        { 
-
+        {
+            base.Act(map, player);
+            if (ActTimer == 0)
+            {
+                TextureIndex = (TextureIndex + 1) % Textures.Count;
+                ActTimer = 50;
+            }
         }
 
         public override RayTexture GetTexture(double viewAngle)

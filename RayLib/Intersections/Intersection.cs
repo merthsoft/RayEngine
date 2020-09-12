@@ -23,11 +23,11 @@ namespace RayLib.Intersections
         {
             var texture = GetTexture();
             var column = texture[TextureX];
-            var step = (double)Def.DrawSize.H / (double)Height;
-            var texPos = (Top - viewHeight / 2 + Height / 2) * step;
+            var step = (double)Def.DrawSize.H / Height;
+            var texPos = (Top - viewHeight / 2.0 + Height / 2.0) * step;
 
-            var textureHeight = (int)Def.DrawSize.H - 1;
-            var distanceScale = (int)(6 * Distance);
+            var textureHeight = Def.DrawSize.H - 1;
+            var distanceScale = (int)(7 * Distance);
             for (var y = Top; y < Bottom; y++)
             {
                 var texY = (int)texPos & textureHeight;

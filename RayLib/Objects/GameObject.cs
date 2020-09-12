@@ -55,7 +55,7 @@ namespace RayLib.Objects
         public GameObject(Def def)
             => Def = def;
 
-        public abstract void Initialize();
+        public virtual void Initialize() { }
 
         public abstract RayTexture GetTexture(double viewAngle);
 
@@ -64,6 +64,9 @@ namespace RayLib.Objects
             Location = v;
             return this;
         }
+
+        public GameObject SetLocation(int x, int y)
+            => SetLocation((x, y));
 
         public GameObject SetDirection(GameVector v)
         {
