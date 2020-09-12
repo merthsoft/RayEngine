@@ -7,7 +7,7 @@ namespace RayEngine.Actors
 {
     public class Door : Actor
     {
-        private List<RayTexture[]> Textures { get; } = new();
+        private List<RayTexture> Textures { get; } = new();
 
         public WallDef BackWall { get; set; } = WallDef.Empty;
 
@@ -25,11 +25,9 @@ namespace RayEngine.Actors
 
             foreach (var textures in ActorDef.Textures)
                 foreach (var texture in textures)
-                    Textures.Add(new[]
-                    {
-                        texture.Zip(BackWall.EastWestTexture),
-                        texture.Zip(BackWall.NorthSouthTexture),
-                    });
+                    Textures.Add(Direction == GameVector.East || Direction == GameVector.West
+                        ? texture.Zip(BackWall.NorthSouthTexture) // Seems backwards at first but it makes sense
+                        : texture.Zip(BackWall.EastWestTexture));
         }
 
         public override void Act(Map map, Player player)
@@ -38,6 +36,6 @@ namespace RayEngine.Actors
         }
 
         public override RayTexture GetTexture(double viewAngle)
-            => GetTextureFromAngle(Textures[TextureIndex], viewAngle);
+            => Textures[TextureIndex];
     }
 }

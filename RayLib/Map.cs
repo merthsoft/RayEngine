@@ -3,7 +3,6 @@ using RayLib.Intersections;
 using RayLib.Objects;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace RayLib
@@ -184,7 +183,7 @@ namespace RayLib
                 var cameraX = 2.0 * x / viewWidth - 1.0;
                 var rayDir = player.Direction + player.Plane * cameraX;
                 var (deltaDistX, deltaDistY) = (1 / rayDir).Abs();
-                var eastWall = false;
+                var northWall = false;
 
                 (var stepX, var sideDistX) = rayDir.X < 0
                     ? (-1, (posX - mapX) * deltaDistX)
@@ -202,13 +201,13 @@ namespace RayLib
                     {
                         sideDistX += deltaDistX;
                         mapX += stepX;
-                        eastWall = false;
+                        northWall = false;
                     }
                     else
                     {
                         sideDistY += deltaDistY;
                         mapY += stepY;
-                        eastWall = true;
+                        northWall = true;
                     }
 
                     if (mapX < 0 || mapY < 0 || mapX >= Size.w || mapY >= Size.h)
@@ -230,17 +229,17 @@ namespace RayLib
                             continue;
                         }
 
-                        (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, eastWall, stepX, stepY, obj.Def);
+                        (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, northWall, stepX, stepY, obj.Def);
                         intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, (player.Location - (obj.Location.X, obj.Location.Y)).Atan2().ToDegrees()));
                     }
                 }
 
                 if (wall != WallDef.Empty)
                 {
-                    (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, eastWall, stepX, stepY, wall);
+                    (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, northWall, stepX, stepY, wall);
                     zbuffer[screenX] = distance;
                     if (!blocked)
-                        intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2().ToDegrees(), !eastWall));
+                        intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2().ToDegrees(), northWall));
                 }
                 screenX++;
             }
@@ -290,27 +289,27 @@ namespace RayLib
             return new Step(intersections, objectsInSight, new[] { zbuffer });
         }
 
-        private (double distance, int lineHeight, int drawStart, int texX) measureWallShit(int viewHeight, double posX, double posY, double mapX, double mapY, GameVector rayDir, bool eastWall, int stepX, int stepY, Def def)
+        private (double distance, int lineHeight, int drawStart, int texX) measureWallShit(int viewHeight, double posX, double posY, double mapX, double mapY, GameVector rayDir, bool northWall, int stepX, int stepY, Def def)
         {
             double distance;
             int lineHeight;
             int drawStart;
             int texX;
-            distance = !eastWall
+            distance = !northWall
                                         ? (mapX - posX + (1.0 - stepX) / 2.0) / rayDir.X
                                         : (mapY - posY + (1.0 - stepY) / 2.0) / rayDir.Y;
             lineHeight = (int)(viewHeight / distance);
             drawStart = (int)(-lineHeight / 2.0 + viewHeight / 2.0);
-            var wallX = !eastWall
+            var wallX = !northWall
                 ? posY + distance * rayDir.Y
                 : posX + distance * rayDir.X;
             wallX -= (int)wallX;
 
             var textureWidth = def.DrawSize.W;
             texX = (int)(wallX * textureWidth);
-            if (!eastWall && rayDir.X > 0)
+            if (!northWall && rayDir.X > 0)
                 texX = textureWidth - texX - 1;
-            if (eastWall && rayDir.Y < 0)
+            if (northWall && rayDir.Y < 0)
                 texX = textureWidth - texX - 1;
 
             return (distance, lineHeight, drawStart, texX);

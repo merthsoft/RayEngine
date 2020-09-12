@@ -6,7 +6,6 @@ using MonoGame.Extended.VectorDraw;
 using RayEngine.Actors;
 using RayLib;
 using RayLib.Defs;
-using RayLib.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -150,7 +149,7 @@ namespace RayEngine
                                  0                                                  0
                                  0                                                  0
                                  0                                                  0
-                                 03330-0000003-30000000000                          0
+                                 03330-0000003-30000003-30                          0
                                  0>         I    BI      0                          0
                                  0                       |                          0
                                  0         B    B        0                          0
@@ -178,7 +177,7 @@ namespace RayEngine
                         {
                             var direction = c == '-' ? GameVector.East : GameVector.North;
                             var neighborWall = neighbors[(int)direction.X + 1, (int)direction.Y + 1];
-                            map.SpawnActor<Door>(0, i, j, door, GameVector.North,
+                            map.SpawnActor<Door>(0, i, j, door, direction,
                                 preInit: door => door.BackWall = WallDefs[int.Parse(neighborWall.ToString())]);
                         }
                         else if (c == 'x')
