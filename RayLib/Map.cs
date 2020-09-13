@@ -223,12 +223,9 @@ namespace RayLib
                     var lineObjects = ObjectMap[0][(int)mapX][(int)mapY];
                     foreach (var obj in lineObjects)
                     {
-                        if (obj.BlocksView)
-                            blocked = true;
-
                         objectsInSight.Add(obj);
                         
-                        if (obj.Direction == GameVector.Zero)
+                        if (obj.RenderStyle != RenderStyle.Wall)
                             continue;
                         
                         if (!directionalObjects.TryGetValue(obj, out var objectIntersections))
@@ -236,6 +233,13 @@ namespace RayLib
                         directionalObjects[obj] = objectIntersections;
                         (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, obj.Def);
                         objectIntersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, (player.Location - (obj.Location.X, obj.Location.Y)).Atan2().ToDegrees()));
+
+
+                        if (obj.BlocksView)
+                        {
+                            blocked = true;
+                            zbuffer[screenX] = distance;
+                        }
                     }
                 }
 
@@ -252,7 +256,7 @@ namespace RayLib
             (playerX, playerY) = player.Location - viewOffset;
             foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
             {
-                if (obj.Direction != GameVector.Zero)
+                if (obj.RenderStyle == RenderStyle.Wall)
                 {
                     var objectIntersections = directionalObjects.GetValueOrDefault(obj);
                     if (objectIntersections == null)
@@ -295,7 +299,7 @@ namespace RayLib
                     screenX = viewWidth - stripe - 1;
                     var textureWidth = (int)obj.Def.DrawSize.W;
                     texX = textureWidth - (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureWidth / spriteWidth - 1;
-                    if (transformY > 0 && screenX > 0 && screenX < viewWidth && transformY < zbuffer[screenX])
+                    if (transformY < zbuffer[screenX])
                         intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStartY, drawEndY, transformY, spriteHeight, angle));
                 }
                     

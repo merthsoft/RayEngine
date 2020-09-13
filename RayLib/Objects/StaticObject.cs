@@ -7,6 +7,7 @@ namespace RayLib.Objects
     {
         public override bool Blocking => StaticObjectDef.Blocking;
         public override bool BlocksView => StaticObjectDef.BlocksView;
+        public override RenderStyle RenderStyle => StaticObjectDef.RenderStyle;
         public StaticObjectDef StaticObjectDef => (Def as StaticObjectDef)!;
         public List<RayTexture> Textures => StaticObjectDef.Textures;
 

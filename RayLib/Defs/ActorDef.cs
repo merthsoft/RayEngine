@@ -6,13 +6,13 @@
 
         public override string DefName => nameof(ActorDef);
 
-        public bool BlocksView { get; }
-        public RayTexture[][] Textures { get; }
+        public bool BlocksView { get; set; }
+        public RenderStyle RenderStyle { get; set; } = RenderStyle.Sprite;
+        public RayTexture[][] Textures { get; set; }
 
-        public ActorDef(string name, bool blocksView, params RayTexture[][] textures)
+        public ActorDef(string name, params RayTexture[][] textures)
             : base(name, textures[0][0].Size)
-            => (Textures, BlocksView)
-             = (textures, blocksView);
+            => Textures = textures;
 
         protected ActorDef(string name, int w, int h)
             : base(name, w, h)

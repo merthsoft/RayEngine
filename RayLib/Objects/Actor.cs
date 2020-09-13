@@ -14,7 +14,8 @@ namespace RayLib.Objects
 
         public override bool Blocking => true;
         public override bool BlocksView => ActorDef.BlocksView;
-        
+        public override RenderStyle RenderStyle => ActorDef.RenderStyle;
+
         public State<ActionParameters>? CurrentState { get; set; }
 
         protected Actor()

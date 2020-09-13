@@ -8,6 +8,7 @@ namespace RayLib.Defs
         public override string DefName => nameof(StaticObjectDef);
 
         public bool Blocking { get; }
+        public RenderStyle RenderStyle { get; } = RenderStyle.Sprite;
         public bool BlocksView { get; }
         public List<RayTexture> Textures { get; }
         public GameVector Direction { get; protected set; } = (0, 0);

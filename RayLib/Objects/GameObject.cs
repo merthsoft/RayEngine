@@ -51,6 +51,7 @@ namespace RayLib.Objects
 
         public abstract bool Blocking { get; }
         public abstract bool BlocksView { get; }
+        public abstract RenderStyle RenderStyle { get; }
 
         public GameObject(Def def)
             => Def = def;

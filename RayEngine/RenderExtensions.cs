@@ -14,7 +14,7 @@ namespace RayEngine
         {
             for (var y = 0; y < viewHeight / 2; y++)
             {
-                var colorScale = (int)(y / 1.5).Round(0);
+                var colorScale = y/2;
                 screen
                    .DrawLine(0, y, viewWidth, y, 255, Color.Brown.R - 100 - colorScale, Color.Brown.G - colorScale, Color.Brown.B - colorScale)
                    .DrawLine(0, y + viewHeight / 2, viewWidth, y + viewHeight / 2, 255, 64 + colorScale, 64 + colorScale, 64 + colorScale);

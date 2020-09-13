@@ -124,17 +124,14 @@ namespace RayEngine
                 name: "Pillar", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/Pillar"));
             
-            var door = new ActorDef(
-                name: "Door", blocksView: false,
+            var door = new ActorDef(name: "Door", 
                 new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Closed") },
                 new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Opening") },
-                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Open") });
+                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Open") }) { RenderStyle = RenderStyle.Wall};
 
-            var spider = new ActorDef("Spider", blocksView: false,
-               new[] { Content.Load<RayTexture>("Sprites/Actors/Spider/1") });
+            var spider = new ActorDef("Spider", new[] { Content.Load<RayTexture>("Sprites/Actors/Spider/1") });
 
-            var atmBucket = new ActorDef("Atm", blocksView: false,
-                new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Idle") },
+            var atmBucket = new ActorDef("Atm", new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Idle") },
                 new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Wakeup") },
                 new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Walk") }
             );
