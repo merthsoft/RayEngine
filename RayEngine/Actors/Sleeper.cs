@@ -1,57 +1,94 @@
 ﻿using RayLib;
 using RayLib.Defs;
 using RayLib.Objects;
-using System;
 using System.Linq;
 
 namespace RayEngine.Actors
 {
-    public class Sleeper : Follower
+    public class Sleeper : Actor
     {
-        private int LookCounter { get; set; } = 25;
-        private int AwakeCounter { get; set; } = 0;
+        protected static readonly State<ActionParameters> LookState = new(50, a => TimerUp(a) && Look(a));
+        protected static readonly State<ActionParameters> AwakeState = new(50, TimerUp);
+        protected static readonly State<ActionParameters> PopUpState = new(50, PopUp);
+        protected static readonly State<ActionParameters> FollowState = new(40, 70, Follow);
+
+        static Sleeper()
+        {
+            LookState
+                .Chain(AwakeState)
+                .Chain(PopUpState)
+                .Chain(FollowState);
+        }
 
         public Sleeper() : base() { }
 
         public Sleeper(ActorDef actorDef)
             : base(actorDef) { }
 
-        public override void Act(Map map, Player player)
+        public override void Initialize()
         {
-            // TODO: State machine
-            if (AwakeCounter == 0)
+            base.Initialize();
+            CurrentState = LookState;
+            TextureIndex = 0;
+        }
+
+        public static bool Look(ActionParameters actionParameters)
+        {
+            if (actionParameters.Map.ObjectsInSight(actionParameters.Actor, (0, 0)).Contains(actionParameters.Player))
             {
-                TextureIndex = 0;
-                LookCounter--;
-                if (LookCounter == 0)
-                {
-                    LookCounter = Random.Next(10, 70);
-                    if (map.ObjectsInSight(this, (0, 0)).Contains(player))
-                    {
-                        TextureIndex = 1;
-                        AwakeCounter = Random.Next(500, 525);
-                    }
-                }
+                return true;
             }
-            else if (AwakeCounter > 480)
+            return false;
+        }
+
+        public static bool PopUp(ActionParameters actionParameters)
+        {
+            actionParameters.Actor.TextureIndex = 1;
+            if (!(actionParameters.Player is GamePlayer gamePlayer))
+                return true;
+
+            gamePlayer.FieldOfView -= .005;
+
+            if (!TimerUp(actionParameters))
+                return false;
+
+            gamePlayer.FieldOfView = .75;
+            return true;
+        }
+
+        public static bool Follow(ActionParameters actionParameters)
+        {
+            actionParameters.Actor.TextureIndex = 2;
+
+            if (!TimerUp(actionParameters))
+                return false;
+            if (!(actionParameters.Player is GamePlayer gamePlayer))
+                return true;
+
+            var actor = actionParameters.Actor;
+            var map = actionParameters.Map;
+
+            var direction = GameVector.CardinalDirections8[(actor.Location - gamePlayer.Location).Atan2().ToDegrees().CardinalDirection8IndexDegrees()];
+            actor.Direction = direction;
+
+            var newLocation = map.FindPath(actor.Location, gamePlayer.Location).FirstOrDefault();
+            if (newLocation == null)
+                newLocation = actor.Location + direction;
+
+            if (newLocation == gamePlayer.Location)
             {
-                AwakeCounter--;
-                TextureIndex = 1;
-                ActTimer = 1;
+                gamePlayer.ScreenFlash = (64, 0, 0);
+                gamePlayer.ScreenFlashDuration += 50;
+                gamePlayer.ScreenFlashDecay = 1;
             }
-            else if (AwakeCounter > 470)
-            {
-                AwakeCounter--;
-                TextureIndex = 2;
-                ActTimer = 1;
-            }
-            else
-            {
-                TextureIndex = 2;
-                base.Act(map, player);
-                //if (map.ObjectsInSight(this, (0, 0)).Contains(player))
-                //    AwakeCounter--;
-            }
+
+            if (map.BlockedAt(0, newLocation))
+                newLocation = actor.Location - direction;
+
+            if (!map.BlockedAt(0, newLocation))
+                actor.Location = newLocation;
+
+            return true;
         }
     }
 }

@@ -3,7 +3,6 @@ using RayLib.Intersections;
 using RayLib.Objects;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace RayLib
@@ -154,10 +153,12 @@ namespace RayLib
 
         public Step Update(Player player, GameVector viewOffset)
         {
+            var parameters = new ActionParameters();
             Actors.ForEach(a =>
             {
                 RemoveFromObjectMap(0, a);
-                a.Act(this, player);
+                parameters.Set(player, a, this);
+                a.Act(parameters);
                 AddToObjectMap(0, a);
             });
 

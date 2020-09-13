@@ -23,7 +23,7 @@ namespace RayEngine.Actors
 
         }
 
-        public override void Act(Map map, Player player)
+        public override void Act(ActionParameters parameters)
         {
             if (ScreenFlashDuration > 250)
             {

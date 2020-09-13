@@ -141,6 +141,14 @@ namespace RayEngine
 
             Map = new Map(ViewWidth, ViewHeight,
                     simpleMap: @"0000000000000000000000000000000000000000000000000000
+                                 0  v  0                                            0
+                                 0     0                                            0
+                                 0 I I 0                                            0
+                                 000-0000000033333                                  0
+                                 0     0   I3    3                                  0
+                                 0  B  |    |   a3                                  0
+                                 0     0   I3    3                                  0
+                                 00000000-00333333                                  0
                                  0                                                  0
                                  0                                                  0
                                  0                                                  0
@@ -148,21 +156,13 @@ namespace RayEngine
                                  0                                                  0
                                  0                                                  0
                                  0                                                  0
+                                 0                                                  3
+                                 0                                                  3
+                                 0                                                  3
+                                 0                                                  3
+                                 0                                                  3
                                  0                                                  0
-                                 0    B                                             0
                                  0                                                  0
-                                 03330-0000003-30000003-30                          0
-                                 0>         I    BI      0                          0
-                                 0                       |                          0
-                                 0         B    B        0                          0
-                                 0B B                B   3                          0
-                                 0       B               |                          3
-                                 0    I     I     I      3                          3
-                                 0                       0                          3
-                                 0      BB     B         0                          3
-                                 0                       0                          3
-                                 0BBBB BBBB  BBBB        0                          0
-                                 0BBBBIBBBBBIBBBBBIBBBBBB0                          0
                                  0000000000000000000000000000000000000000000000000000",
                     generator: (Map map, int i, int j, char c, char[,] neighbors) =>
                     {
@@ -192,7 +192,7 @@ namespace RayEngine
                         else if (c == 's')
                             map.SpawnActor<Wanderer>(0, i, j, spider, GameVector.East);
                         else if (c == 'a')
-                            map.SpawnActor<Sleeper>(0, i, j, atmBucket, GameVector.South, 1);
+                            map.SpawnActor<Sleeper>(0, i, j, atmBucket, GameVector.West, 1);
                         else if (">^<v".Contains(c))
                             Player
                                 .SetLocation(i, j)
@@ -204,7 +204,7 @@ namespace RayEngine
 
         protected override void Update(GameTime gameTime)
         {
-            Player.Act(Map, Player);
+            Player.Act(null!); // TODO: This is dirty. Use a singleton instead of null
             if (Step != null)
                 PreviousState = HandleKeyboardInput();
             Step = Map.Update(Player, Player.Direction / 2);
@@ -256,6 +256,8 @@ namespace RayEngine
             }
             Player.Direction = (dirX, dirY).Round();
 
+            Player.Interacting = keyboardState.IsKeyDown(Keys.Space, Keys.NumPad0);
+
             return keyboardState;
         }
 
@@ -266,8 +268,6 @@ namespace RayEngine
                 activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
                     .RenderScreenFlash(ViewWidth, ViewHeight, Player)
-                    .DrawText($"{Player.Location} {Player.Direction} {Player.Plane} {GameVector.CardinalDirections8Names[Player.Direction.CardinalDirection8Index]}", 0, 0, 255, 200, 200, 255)
-
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
             
