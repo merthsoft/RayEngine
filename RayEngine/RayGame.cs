@@ -248,7 +248,7 @@ namespace RayEngine
             else if (keyboardState.IsKeyDown(Keys.OemMinus) && Player.FieldOfView > .01)
                 Player.FieldOfView = (Player.FieldOfView - .01).Round(2);
 
-            //if (!Map.BlockedAt(0, (int)posX, (int)posY))
+            if (!Map.BlockedAt(0, (int)posX, (int)posY) || Player.NoClip)
             {
                 Map.ClearPlayer(Player);
                 Player.Location = (posX, posY).Floor().Add(.5);

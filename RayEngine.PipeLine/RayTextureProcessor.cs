@@ -5,7 +5,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 
-namespace RayEngine
+namespace RayEngine.PipeLine
 {
     [ContentProcessor(DisplayName = ("RayTexture Processor - RayEngine"))]
     public class RayTextureProcessor : ContentProcessor<Image<Rgba32>, RayTexture>

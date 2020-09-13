@@ -2,7 +2,7 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace RayEngine
+namespace RayEngine.PipeLine
 {
     [ContentImporter(".bmp", ".gif", ".png", ".jpg",
         DefaultProcessor = "RayTextureProcessor", DisplayName = "Image Importer - RayEngine")]

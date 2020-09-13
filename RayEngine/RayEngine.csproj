@@ -35,7 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RayEngine.PipeLine\RayEngine.PipeLine.csproj" />
     <ProjectReference Include="..\RayLib\RayLib.csproj" />
   </ItemGroup>
 

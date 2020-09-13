@@ -16,6 +16,8 @@ namespace RayEngine.Actors
         public FaceState Face { get; set; }
         public int FaceTimer { get; set; } = 40;
 
+        public bool NoClip { get; set; } = false;
+
         public GamePlayer(ActorDef def) : base(def)
         {
 
