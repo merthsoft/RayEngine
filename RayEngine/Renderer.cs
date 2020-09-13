@@ -29,13 +29,17 @@ namespace RayEngine
 
         public IActiveRenderer DrawLine(float x1, float y1, float x2, float y2, int a, int r, int g, int b)
         {
-            PrimitiveDrawing.DrawSegment(new(x1, y1), new(x2, y2), Color.FromNonPremultiplied(r, g, b, a));
+            if (a != 255)
+                return this;
+            PrimitiveDrawing.DrawSegment(new(x1, y1), new(x2, y2), new(r, g, b));
             return this;
         }
 
         public IActiveRenderer PlotPoint(float x, float y, int a, int r, int g, int b)
         {
-            PrimitiveDrawing.DrawSegment(new(x, y), new(x + 1, y + 1), Color.FromNonPremultiplied(r, g, b, a));
+            if (a != 255)
+                return this;
+            PrimitiveDrawing.DrawSegment(new(x, y), new(x + 1, y + 1), new(r, g, b));
             return this;
         }
 

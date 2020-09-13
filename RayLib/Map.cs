@@ -3,6 +3,7 @@ using RayLib.Intersections;
 using RayLib.Objects;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace RayLib
@@ -162,12 +163,13 @@ namespace RayLib
 
             var (viewWidth, viewHeight) = ViewSize;
 
-            var intersections = new List<Intersection>();
+            var intersections = new HashSet<Intersection>();
             var zbuffer = new double[viewWidth];
             
             var objectsInSight = new HashSet<GameObject>();
+            var directionalObjects = new Dictionary<GameObject, List<Intersection>>();
 
-            var (posX, posY) = player.Location - viewOffset;
+            var (playerX, playerY) = player.Location - viewOffset;
             var (planeX, planeY) = player.Plane;
             var (dirX, dirY) = player.Direction;
 
@@ -186,12 +188,12 @@ namespace RayLib
                 var northWall = false;
 
                 (var stepX, var sideDistX) = rayDir.X < 0
-                    ? (-1, (posX - mapX) * deltaDistX)
-                    : (1, (mapX + 1.0 - posX) * deltaDistX);
+                    ? (-1, (playerX - mapX) * deltaDistX)
+                    : (1, (mapX + 1.0 - playerX) * deltaDistX);
 
                 (var stepY, var sideDistY) = rayDir.Y < 0
-                    ? (-1, (posY - mapY) * deltaDistY)
-                    : (1, (mapY + 1.0 - posY) * deltaDistY);
+                    ? (-1, (playerY - mapY) * deltaDistY)
+                    : (1, (mapY + 1.0 - playerY) * deltaDistY);
 
                 var wall = WallDef.Empty;
                 var blocked = false;
@@ -223,20 +225,22 @@ namespace RayLib
                         if (obj.BlocksView)
                             blocked = true;
 
+                        objectsInSight.Add(obj);
+                        
                         if (obj.Direction == GameVector.Zero)
-                        {
-                            objectsInSight.Add(obj);
                             continue;
-                        }
-
-                        (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, northWall, stepX, stepY, obj.Def);
-                        intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, (player.Location - (obj.Location.X, obj.Location.Y)).Atan2().ToDegrees()));
+                        
+                        if (!directionalObjects.TryGetValue(obj, out var objectIntersections))
+                            objectIntersections = new List<Intersection>();
+                        directionalObjects[obj] = objectIntersections;
+                        (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, obj.Def);
+                        objectIntersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, (player.Location - (obj.Location.X, obj.Location.Y)).Atan2().ToDegrees()));
                     }
                 }
 
                 if (wall != WallDef.Empty)
                 {
-                    (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, posX, posY, mapX, mapY, rayDir, northWall, stepX, stepY, wall);
+                    (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, wall);
                     zbuffer[screenX] = distance;
                     if (!blocked)
                         intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2().ToDegrees(), northWall));
@@ -244,10 +248,21 @@ namespace RayLib
                 screenX++;
             }
 
-            (posX, posY) = player.Location - viewOffset;
+            (playerX, playerY) = player.Location - viewOffset;
             foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
             {
-                var locationDelta = (obj.Location - (posX, posY)) ;
+                if (obj.Direction != GameVector.Zero)
+                {
+                    var objectIntersections = directionalObjects.GetValueOrDefault(obj);
+                    if (objectIntersections == null)
+                        continue;
+                    foreach (var intersection in objectIntersections)
+                        intersections.Add(intersection);
+
+                    continue;
+                }
+
+                var locationDelta = (obj.Location - (playerX, playerY)) ;
                 var angle = locationDelta.Atan2().ToDegrees();
                 var (spriteX, spriteY) = locationDelta - viewOffset * .7;
 
@@ -274,7 +289,6 @@ namespace RayLib
                 if (drawEndX >= viewWidth)
                     drawEndX = viewWidth - 1;
 
-
                 for (var stripe = (int)drawStartX; stripe < (int)drawEndX; stripe++)
                 {
                     screenX = viewWidth - stripe - 1;
@@ -296,8 +310,8 @@ namespace RayLib
             int drawStart;
             int texX;
             distance = !northWall
-                                        ? (mapX - posX + (1.0 - stepX) / 2.0) / rayDir.X
-                                        : (mapY - posY + (1.0 - stepY) / 2.0) / rayDir.Y;
+                        ? (mapX - posX + (1.0 - stepX) / 2.0) / rayDir.X
+                        : (mapY - posY + (1.0 - stepY) / 2.0) / rayDir.Y;
             lineHeight = (int)(viewHeight / distance);
             drawStart = (int)(-lineHeight / 2.0 + viewHeight / 2.0);
             var wallX = !northWall

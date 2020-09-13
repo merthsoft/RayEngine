@@ -1,4 +1,5 @@
 using RayLib.Defs;
+using System;
 
 namespace RayLib.Intersections
 {
@@ -32,8 +33,10 @@ namespace RayLib.Intersections
             {
                 var texY = (int)texPos & textureHeight;
                 texPos += step;
-                (var a, var r, var g, var b) = column[texY];
-                screen.PlotPoint(ScreenX, y, a, r - distanceScale, g - distanceScale, b - distanceScale);
+                var c = column[texY];
+                if (c.A != 255)
+                    continue;
+                screen.PlotPoint(ScreenX, y, 255, c.R - distanceScale, c.G - distanceScale, c.B - distanceScale);
             }
 
             return screen;

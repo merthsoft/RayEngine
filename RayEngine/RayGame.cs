@@ -46,7 +46,7 @@ namespace RayEngine
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            IsFixedTimeStep = false;
+            IsFixedTimeStep = true;
         }
 
         protected override void Initialize()
@@ -125,7 +125,7 @@ namespace RayEngine
                 Content.Load<RayTexture>("Sprites/Static/Pillar"));
             
             var door = new ActorDef(
-                name: "Door", blocksView: true,
+                name: "Door", blocksView: false,
                 new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Closed") },
                 new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Opening") },
                 new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Open") });
@@ -149,7 +149,7 @@ namespace RayEngine
                                  0                                                  0
                                  0                                                  0
                                  0                                                  0
-                                 0                                                  0
+                                 0    B                                             0
                                  0                                                  0
                                  03330-0000003-30000003-30                          0
                                  0>         I    BI      0                          0
