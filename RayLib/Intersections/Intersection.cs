@@ -28,7 +28,7 @@ namespace RayLib.Intersections
             var texPos = (Top - viewHeight / 2.0 + Height / 2.0) * step;
 
             var textureHeight = Def.DrawSize.H - 1;
-            var distanceScale = (int)(7 * Distance);
+            var distanceScale = (int)(18 * Distance); // TODO: This should be in the engine, not the lib
             for (var y = Top; y < Bottom; y++)
             {
                 var texY = (int)texPos & textureHeight;

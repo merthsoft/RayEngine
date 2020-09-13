@@ -29,10 +29,11 @@ namespace RayEngine.Actors
 
         static Door()
         {
-            closedState.AddNext(openingState);
-            openingState.AddNext(openState);
-            openState.AddNext(closingState);
-            closingState.AddNext(closedState);
+            closedState
+                .Chain(openingState)
+                .Chain(openState)
+                .Chain(closingState)
+                .Chain(closedState);
         }
 
         public Door()

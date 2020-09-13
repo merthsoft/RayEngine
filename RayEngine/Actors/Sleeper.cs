@@ -7,7 +7,7 @@ namespace RayEngine.Actors
 {
     public class Sleeper : Actor
     {
-        protected static readonly State<ActionParameters> LookState = new(50, a => TimerUp(a) && Look(a));
+        protected static readonly State<ActionParameters> LookState = new(50, Look);
         protected static readonly State<ActionParameters> AwakeState = new(50, TimerUp);
         protected static readonly State<ActionParameters> PopUpState = new(50, PopUp);
         protected static readonly State<ActionParameters> FollowState = new(40, 70, Follow);
@@ -34,10 +34,12 @@ namespace RayEngine.Actors
 
         public static bool Look(ActionParameters actionParameters)
         {
+            if (!TimerUp(actionParameters))
+                return false;
+
             if (actionParameters.Map.ObjectsInSight(actionParameters.Actor, (0, 0)).Contains(actionParameters.Player))
-            {
                 return true;
-            }
+
             return false;
         }
 
@@ -52,18 +54,22 @@ namespace RayEngine.Actors
             if (!TimerUp(actionParameters))
                 return false;
 
-            gamePlayer.FieldOfView = .75;
             return true;
         }
 
         public static bool Follow(ActionParameters actionParameters)
         {
             actionParameters.Actor.TextureIndex = 2;
+            if (!(actionParameters.Player is GamePlayer gamePlayer))
+                return true;
+
+            if (gamePlayer.FieldOfView < .75)
+                gamePlayer.FieldOfView += .01;
 
             if (!TimerUp(actionParameters))
                 return false;
-            if (!(actionParameters.Player is GamePlayer gamePlayer))
-                return true;
+
+            gamePlayer.FieldOfView = .75;
 
             var actor = actionParameters.Actor;
             var map = actionParameters.Map;
