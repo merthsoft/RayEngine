@@ -26,17 +26,15 @@ namespace RayLib.Intersections
             var step = (double)Def.DrawSize.H / Height;
             var texPos = (Top - viewHeight / 2.0 + Height / 2.0) * step;
             var textureHeight = Def.DrawSize.H - 1;
+            var c = new GameColor();
             for (var y = Top; y < Bottom; y++)
             {
                 var texY = (int)texPos & textureHeight;
                 texPos += step;
-                var c = column[texY];
-                foreach (var shader in shaders)
-                {
-                    c = shader(ScreenX, y, c, Distance, ViewAngleDegrees);
-                    if (c == null)
-                        return screen;
-                }
+                c.Copy(column[texY]);
+                for (var i = 0; i < shaders.Length; i++)
+                    shaders[i].Invoke(ScreenX, y, Distance, ViewAngleDegrees, ref c);
+
                 screen.PlotPoint(ScreenX, y, c.A, c.R, c.G, c.B);
             }
 

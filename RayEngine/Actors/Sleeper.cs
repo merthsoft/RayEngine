@@ -37,7 +37,7 @@ namespace RayEngine.Actors
             if (!TimerUp(actionParameters))
                 return false;
 
-            if (actionParameters.Map.ObjectsInSight(actionParameters.Actor, (0, 0)).Contains(actionParameters.Player))
+            if (actionParameters.Map.FindObjectsInSight(actionParameters.Actor, (0, 0)).Contains(actionParameters.Player))
                 return true;
 
             return false;

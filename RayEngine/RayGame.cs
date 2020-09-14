@@ -138,9 +138,9 @@ namespace RayEngine
 
             Map = new Map(ViewWidth, ViewHeight,
                     simpleMap: @"0000000000000000000000000000000000000000000000000000
-                                 0  v  0                                            0
                                  0     0                                            0
-                                 0 I I 0                                            0
+                                 0     0                                            0
+                                 0 IvI 0                                            0
                                  000-0000000033333                                  0
                                  0     0   I3    3                                  0
                                  0  B  |    |   a3                                  0
@@ -265,6 +265,7 @@ namespace RayEngine
                 activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
                     .RenderScreenFlash(ViewWidth, ViewHeight, Player)
+                    .DrawText($"Intersections: {Step?.Intersections?.Count() ?? 0}", 0, 0, 255, 200, 0, 200)
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
             

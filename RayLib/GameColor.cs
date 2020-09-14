@@ -1,4 +1,6 @@
-﻿namespace RayLib
+﻿using System;
+
+namespace RayLib
 {
     public record GameColor
     {
@@ -15,8 +17,41 @@
 
         public GameColor() { }
 
+        public GameColor(GameColor gameColor)
+        {
+            A = gameColor.A;
+            R = gameColor.R;
+            G = gameColor.G;
+            B = gameColor.B;
+        }
+
         public GameColor(int a, int r, int g, int b)
             => (A, R, G, B)
              = (a, r, g, b);
+
+        public GameColor AlphaClamp(int clamp)
+        {
+            A = A <= clamp ? 0 : 255;
+            return this;
+        }
+        
+        public GameColor TransformColorChannels(Func<int, int> transform)
+        {
+            R = transform(R);
+            G = transform(G);
+            B = transform(B);
+
+            return this;
+        }
+
+        public GameColor Copy(GameColor gameColor)
+        {
+            A = gameColor.A;
+            R = gameColor.R;
+            G = gameColor.G;
+            B = gameColor.B;
+
+            return this;
+        }
     }
 }

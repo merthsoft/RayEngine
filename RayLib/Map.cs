@@ -9,6 +9,9 @@ namespace RayLib
 {
     public class Map : INeighborable<GameVector>
     {
+        private ICollection<Intersection> Intersection { get; } = new List<Intersection>();
+        private ICollection<GameObject> ObjectsInSight { get; } = new HashSet<GameObject>();
+
         private List<List<List<WallDef>>> Walls { get; } = new();
         private List<List<List<List<GameObject>>>> ObjectMap { get; } = new();
         private List<StaticObject> StaticObjects { get; } = new();
@@ -94,7 +97,7 @@ namespace RayLib
             spot.Remove(obj);
         }
 
-        public IEnumerable<GameObject> ObjectsInSight(GameObject baseObject, GameVector viewOffset)
+        public IEnumerable<GameObject> FindObjectsInSight(GameObject baseObject, GameVector viewOffset)
         {
             // TODO: Largely taken from Update. Merge.
             var (viewWidth, _) = ViewSize;
@@ -164,10 +167,10 @@ namespace RayLib
 
             var (viewWidth, viewHeight) = ViewSize;
 
-            var intersections = new HashSet<Intersection>();
             var zbuffer = new double[viewWidth];
-            
-            var objectsInSight = new HashSet<GameObject>();
+
+            Intersection.Clear();
+            ObjectsInSight.Clear();
             var directionalObjects = new Dictionary<GameObject, List<Intersection>>();
 
             var (playerX, playerY) = player.Location - viewOffset;
@@ -223,7 +226,7 @@ namespace RayLib
                     var lineObjects = ObjectMap[0][(int)mapX][(int)mapY];
                     foreach (var obj in lineObjects)
                     {
-                        objectsInSight.Add(obj);
+                        ObjectsInSight.Add(obj);
                         
                         if (obj.RenderStyle != RenderStyle.Wall)
                             continue;
@@ -248,13 +251,13 @@ namespace RayLib
                     (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, wall);
                     zbuffer[screenX] = distance;
                     if (!blocked)
-                        intersections.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2().ToDegrees(), northWall));
+                        Intersection.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2().ToDegrees(), northWall));
                 }
                 screenX++;
             }
 
             (playerX, playerY) = player.Location - viewOffset;
-            foreach (var obj in objectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
+            foreach (var obj in ObjectsInSight.OrderByDescending(o => o.Location.UnscaledDistance(player.Location)))
             {
                 if (obj.RenderStyle == RenderStyle.Wall)
                 {
@@ -262,12 +265,12 @@ namespace RayLib
                     if (objectIntersections == null)
                         continue;
                     foreach (var intersection in objectIntersections)
-                        intersections.Add(intersection);
+                        Intersection.Add(intersection);
 
                     continue;
                 }
 
-                var locationDelta = (obj.Location - (playerX, playerY)) ;
+                var locationDelta = (obj.Location - (playerX, playerY));
                 var angle = locationDelta.Atan2().ToDegrees();
                 var (spriteX, spriteY) = locationDelta - viewOffset * .7;
 
@@ -297,15 +300,17 @@ namespace RayLib
                 for (var stripe = drawStartX; stripe < drawEndX; stripe++)
                 {
                     screenX = viewWidth - stripe - 1;
+                    if (screenX > viewWidth)
+                        break;
                     var textureWidth = obj.Def.DrawSize.W;
                     texX = textureWidth - (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureWidth / spriteWidth - 1;
-                    if (transformY < zbuffer[screenX])
-                        intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStartY, drawEndY, transformY, spriteHeight, angle));
+                    if (screenX > 0 && transformY < zbuffer[screenX])
+                        Intersection.Add(new ObjectIntersection(obj, screenX, texX, drawStartY, drawEndY, transformY, spriteHeight, angle));
                 }
                     
             }
 
-            return new Step(intersections, objectsInSight, new[] { zbuffer });
+            return new Step(Intersection, ObjectsInSight, new[] { zbuffer });
         }
 
         private (double distance, int lineHeight, int drawStart, int texX) measureWallShit(int viewHeight, double posX, double posY, double mapX, double mapY, GameVector rayDir, bool northWall, int stepX, int stepY, Def def)
