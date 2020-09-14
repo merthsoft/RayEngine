@@ -294,10 +294,10 @@ namespace RayLib
                 if (drawEndX >= viewWidth)
                     drawEndX = viewWidth - 1;
 
-                for (var stripe = (int)drawStartX; stripe < (int)drawEndX; stripe++)
+                for (var stripe = drawStartX; stripe < drawEndX; stripe++)
                 {
                     screenX = viewWidth - stripe - 1;
-                    var textureWidth = (int)obj.Def.DrawSize.W;
+                    var textureWidth = obj.Def.DrawSize.W;
                     texX = textureWidth - (stripe - (-spriteWidth / 2 + spriteScreenX)) * textureWidth / spriteWidth - 1;
                     if (transformY < zbuffer[screenX])
                         intersections.Add(new ObjectIntersection(obj, screenX, texX, drawStartY, drawEndY, transformY, spriteHeight, angle));

@@ -21,9 +21,26 @@ namespace RayEngine
             }
 
             foreach (var intersection in step.Intersections)
-                intersection.Render(screen, viewHeight);
+                intersection.Render(screen, viewHeight, StandardShader, Greyscale);
 
             return screen;
+        }
+
+        public static GameColor? StandardShader(int x, int y, GameColor color, double distance, double viewAngleDegrees)
+        {
+            if (color.A == 0)
+                return new(color.A, color.R, color.G, color.B);
+            var distanceScale = Math.Min(200, distance * 20);
+            var newR = (int)Math.Max(25, color.R - distanceScale);
+            var newG = (int)Math.Max(25, color.G - distanceScale);
+            var newB = (int)Math.Max(25, color.B - distanceScale);
+            return new(255, newR > color.R ? color.R : newR, newG > color.G ? color.G : newG, newB > color.B ? color.B : newB);
+        }
+
+        public static GameColor? Greyscale(int x, int y, GameColor color, double distance, double viewAngleDegrees)
+        {
+            var avg = (int)((color.R + color.G + color.B) / 3.0).Round(0);
+            return new(color.A, avg, avg, avg);
         }
 
         public static IActiveRenderer RenderScreenFlash(this IActiveRenderer screen, int viewWidth, int viewHeight, GamePlayer player)
@@ -31,7 +48,7 @@ namespace RayEngine
             if (player.ScreenFlashDuration == 0)
                 return screen;
             (var r, var g, var b) = player.ScreenFlash;
-            var a = (int)Math.Min(240, player.ScreenFlashDuration);
+            var a = Math.Min(240, player.ScreenFlashDuration);
             for (var y = 0; y < viewHeight; y++)
                 screen
                     .DrawLine(0, y, viewWidth, y, a, r, g, b);
