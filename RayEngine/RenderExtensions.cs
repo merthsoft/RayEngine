@@ -19,10 +19,13 @@ namespace RayEngine
 
             foreach (var intersection in step.Intersections)
                 intersection.Render(screen, viewHeight,
-                    (int x, int y, double distance, double viewAngleDegrees, ref GameColor color) 
-                        => color
-                            .AlphaClamp(200)
-                            .TransformColorChannels(c => c - (int)(distance * 8))
+                    (int x, int y, double distance, double viewAngleDegrees, ref GameColor color) => 
+                    {
+                        color.A = color.A < 200 ? 0 : 255;
+                        color.R -= (int)(distance * 20);
+                        color.G -= (int)(distance * 20);
+                        color.B -= (int)(distance * 20);
+                    }
                 );
 
             return screen;
