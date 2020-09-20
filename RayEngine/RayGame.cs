@@ -258,11 +258,9 @@ namespace RayEngine
         protected override void Draw(GameTime gameTime)
         {
             Graphics.GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Black);
-            GameScreen.Draw(0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight, 0, 0, 1,
-                activeRederer => activeRederer
+            GameScreen.Draw(activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
                     .RenderScreenFlash(ViewWidth, ViewHeight, Player)
-                    .DrawText($"Intersections: {Step?.Intersections?.Count() ?? 0}", 0, 0, 255, 200, 0, 200)
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
             

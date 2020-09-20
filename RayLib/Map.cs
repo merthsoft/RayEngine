@@ -235,7 +235,7 @@ namespace RayLib
                         if (!directionalObjects.TryGetValue(obj, out var objectIntersections))
                             objectIntersections = new List<Intersection>();
                         directionalObjects[obj] = objectIntersections;
-                        (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, obj.Def);
+                        (distance, lineHeight, drawStart, texX) = DrawMathForWalls(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, obj.Def);
                         objectIntersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, (player.Location - (obj.Location.X, obj.Location.Y)).Atan2().ToDegrees()));
 
 
@@ -249,7 +249,7 @@ namespace RayLib
 
                 if (wall != WallDef.Empty)
                 {
-                    (distance, lineHeight, drawStart, texX) = measureWallShit(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, wall);
+                    (distance, lineHeight, drawStart, texX) = DrawMathForWalls(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, wall);
                     zbuffer[screenX] = distance;
                     if (!blocked)
                         Intersection.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2().ToDegrees(), northWall));
@@ -314,7 +314,7 @@ namespace RayLib
             return new Step(Intersection, ObjectsInSight, new[] { zbuffer });
         }
 
-        private (double distance, int lineHeight, int drawStart, int texX) measureWallShit(int viewHeight, double posX, double posY, double mapX, double mapY, GameVector rayDir, bool northWall, int stepX, int stepY, Def def)
+        private (double distance, int lineHeight, int drawStart, int texX) DrawMathForWalls(int viewHeight, double posX, double posY, double mapX, double mapY, GameVector rayDir, bool northWall, int stepX, int stepY, Def def)
         {
             double distance;
             int lineHeight;

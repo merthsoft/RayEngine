@@ -6,12 +6,12 @@ namespace RayLib
 {
     public record Step
     {
-        public IEnumerable<Intersection> Intersections { get; }
-        public IEnumerable<GameObject> ObjectsInSight { get; }
-        public IEnumerable<double[]> ZBuffers { get; }
+        public ICollection<Intersection> Intersections { get; }
+        public ICollection<GameObject> ObjectsInSight { get; }
+        public ICollection<double[]> ZBuffers { get; }
 
 
-        public Step(IEnumerable<Intersection> intersections, IEnumerable<GameObject> objectsInSight, IEnumerable<double[]> zBuffers)
+        public Step(ICollection<Intersection> intersections, ICollection<GameObject> objectsInSight, ICollection<double[]> zBuffers)
         {
             Intersections = intersections;
             ObjectsInSight = objectsInSight;

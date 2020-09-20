@@ -33,7 +33,7 @@ namespace RayLib.Intersections
                 texPos += step;
                 var c = column[texY];
                 for (var i = 0; i < shaders.Length; i++)
-                    c = shaders[i].Invoke(ScreenX, y, Distance, ViewAngleDegrees, c);
+                    c = shaders[i](ScreenX, y, Distance, ViewAngleDegrees, c);
 
                 screen.PlotPoint(ScreenX, y, c);
             }
