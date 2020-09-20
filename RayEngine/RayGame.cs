@@ -257,7 +257,7 @@ namespace RayEngine
 
         protected override void Draw(GameTime gameTime)
         {
-            Graphics.GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Black);
+            Graphics.GraphicsDevice.Clear(Color.Black);
             GameScreen.Draw(activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
                     .RenderScreenFlash(ViewWidth, ViewHeight, Player)

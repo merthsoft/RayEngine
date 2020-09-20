@@ -10,13 +10,13 @@ namespace RayEngine.Actors
         public enum FaceState { Forward, Left, Right, Surprised };
 
         public (int r, int g, int b) ScreenFlash { get; set; } = (0, 0, 0);
-        public int ScreenFlashDuration { get; set; } = 0;
+        public int ScreenFlashDuration { get; set; }
         public int ScreenFlashDecay { get; set; }
 
         public FaceState Face { get; set; }
         public int FaceTimer { get; set; } = 40;
 
-        public bool NoClip { get; set; } = false;
+        public bool NoClip { get; set; }
 
         public GamePlayer(ActorDef def) : base(def)
         {

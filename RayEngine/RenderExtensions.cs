@@ -27,7 +27,7 @@ namespace RayEngine
         }
 
         private static uint DarkByDistance(int x, int y, double distance, double viewAngleDegrees, uint color)
-            => DarkenColor(color, 1.0 / (distance+.75) );
+            => DarkenColor(color, 1.0 / (distance+.5) );
         
         private static uint DarkenColor(uint color, double ratio)
         {
