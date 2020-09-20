@@ -9,8 +9,8 @@ namespace RayLib
 
     public interface IActiveRenderer
     {
-        IActiveRenderer DrawLine(float x1, float y1, float x2, float y2, int a, int r, int g, int b);
-        IActiveRenderer PlotPoint(float x, float y, int a, int r, int g, int b);
-        IActiveRenderer DrawText(object text, float x, float y, int a, int r, int g, int b);
+        IActiveRenderer DrawHorizonalLine(int x, int y, int w, uint argb);
+        IActiveRenderer PlotPoint(int x, int y, uint argb);
+        IActiveRenderer DrawText(object text, int x, int y, int a, int r, int g, int b);
     }
 }

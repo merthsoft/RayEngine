@@ -2,6 +2,7 @@
 using RayLib.Defs;
 using RayLib.Objects;
 using System.Linq;
+using RayLib.Extensions;
 
 namespace RayEngine.Actors
 {
@@ -46,7 +47,7 @@ namespace RayEngine.Actors
         public static bool PopUp(ActionParameters actionParameters)
         {
             actionParameters.Actor.TextureIndex = 1;
-            if (!(actionParameters.Player is GamePlayer gamePlayer))
+            if (actionParameters.Player is not GamePlayer gamePlayer)
                 return true;
 
             gamePlayer.FieldOfView -= .005;
@@ -60,7 +61,7 @@ namespace RayEngine.Actors
         public static bool Follow(ActionParameters actionParameters)
         {
             actionParameters.Actor.TextureIndex = 2;
-            if (!(actionParameters.Player is GamePlayer gamePlayer))
+            if (actionParameters.Player is not GamePlayer gamePlayer)
                 return true;
 
             if (gamePlayer.FieldOfView < .75)

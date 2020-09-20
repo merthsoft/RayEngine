@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RayLib
+namespace RayLib.Extensions
 {
     public static class DoubleExtensions
     {

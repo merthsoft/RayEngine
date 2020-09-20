@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
-using MonoGame.Extended.VectorDraw;
 using RayEngine.Actors;
 using RayLib;
 using RayLib.Defs;
@@ -10,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static RayEngine.Actors.GamePlayer;
+using RayLib.Extensions;
 
 namespace RayEngine
 {
@@ -58,10 +58,7 @@ namespace RayEngine
         {
             base.LoadContent();
 
-            GameScreen = new Renderer(
-                new SpriteBatch(GraphicsDevice),
-                new PrimitiveBatch(GraphicsDevice, 1000000)
-            );
+            GameScreen = new Renderer(Graphics.GraphicsDevice, ViewWidth, ViewHeight);
 
             // 0
             WallDefs.Add(new WallDef("Red Bricks",
@@ -260,7 +257,7 @@ namespace RayEngine
 
         protected override void Draw(GameTime gameTime)
         {
-            Graphics.GraphicsDevice.Clear(Color.Black);
+            Graphics.GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Black);
             GameScreen.Draw(0, Graphics.PreferredBackBufferWidth, Graphics.PreferredBackBufferHeight, 0, 0, 1,
                 activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)

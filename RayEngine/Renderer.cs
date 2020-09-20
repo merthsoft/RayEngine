@@ -8,13 +8,23 @@ namespace RayEngine
 {
     class Renderer : IRenderer, IActiveRenderer
     {
+        private (int w, int h) Size { get; }
+        private Texture2D Canvas { get; }
+        private uint[] Data { get; }
+
         public SpriteBatch SpriteBatch { get; }
         public PrimitiveBatch PrimitiveBatch { get; }
         public PrimitiveDrawing PrimitiveDrawing { get; }
-
-        public Renderer(SpriteBatch spriteBatch, PrimitiveBatch primitiveBatch)
-            => (SpriteBatch, PrimitiveBatch, PrimitiveDrawing)
-             = (spriteBatch, primitiveBatch, new PrimitiveDrawing(primitiveBatch));
+        
+        public Renderer(GraphicsDevice graphics, int viewWidth, int viewHeight)
+        {
+            Size = (viewWidth, viewHeight);
+            SpriteBatch = new SpriteBatch(graphics);
+            PrimitiveBatch = new PrimitiveBatch(graphics, 1000000);
+            PrimitiveDrawing = new PrimitiveDrawing(PrimitiveBatch);
+            Canvas = new Texture2D(graphics, viewWidth, viewHeight);
+            Data = new uint[viewWidth * viewHeight];
+        }
 
         public void Draw(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, Action<IActiveRenderer> action)
         {
@@ -22,24 +32,32 @@ namespace RayEngine
             var projectionMatrix = Matrix.CreateOrthographicOffCenter(left, right, bottom, top, zNearPlane, zFarPlane);
             SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, transformMatrix: viewMatrix);
             PrimitiveBatch.Begin(ref projectionMatrix, ref viewMatrix);
+            Array.Fill(Data, 0u);
             action(this);
+            Canvas.SetData(Data);
+            SpriteBatch.Draw(Canvas, new Vector2(0, 0), Color.White);
             PrimitiveBatch.End();
             SpriteBatch.End();
         }
 
-        public IActiveRenderer DrawLine(float x1, float y1, float x2, float y2, int a, int r, int g, int b)
+        public IActiveRenderer DrawHorizonalLine(int x, int y, int w, uint color)
         {
-            PrimitiveDrawing.DrawSegment(new(x1, y1), new(x2, y2), Color.FromNonPremultiplied(r, g, b, a));
+            if (x < 0 || y < 0 || x >= Size.w || y >= Size.h || x + w > Size.w)
+                return this;
+
+            Array.Fill(Data, color, y * Size.w + x, w);
             return this;
         }
 
-        public IActiveRenderer PlotPoint(float x, float y, int a, int r, int g, int b)
+        public IActiveRenderer PlotPoint(int x, int y, uint color)
         {
-            PrimitiveDrawing.DrawSegment(new(x, y), new(x + 1, y + 1), Color.FromNonPremultiplied(r, g, b, a));
+            if (x < 0 || y < 0 || x >= Size.w || y >= Size.h || (color >> 24) != 0xFF)
+                return this;
+            Data[(int)(y * Size.w + x)] = color;
             return this;
         }
 
-        public IActiveRenderer DrawText(object text, float x, float y, int a, int r, int g, int b)
+        public IActiveRenderer DrawText(object text, int x, int y, int a, int r, int g, int b)
         {
             SpriteBatch.DrawString(RayGame.DefaultFont, text.ToString(), new(x, y), Color.FromNonPremultiplied(r, g, b, a));
             return this;

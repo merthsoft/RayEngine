@@ -1,5 +1,4 @@
-﻿using RayLib;
-using RayLib.Defs;
+﻿using RayLib.Defs;
 using RayLib.Objects;
 
 namespace RayEngine.Actors

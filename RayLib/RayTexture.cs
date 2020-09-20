@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using RayLib.Extensions;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,14 +9,28 @@ namespace RayLib
     {
         public static RayTexture Empty { get; } = new(0, 0);
 
-        public (int w, int h) Size { get; set; }
+        private (int w, int h) size;
+        public (int w, int h) Size
+        { 
+            get => size;
+            set
+            {
+                size = value;
+                //ColorStrips.Resize(size.h, new(Enumerable.Repeat(Color.Black, size.w)));
+                //foreach (var c in ColorStrips)
+                //    c.Resize(size.w);
+            }
+        }
         public List<ColorStrip> ColorStrips { get; } = new();
 
         public ColorStrip this[int col]
             => ColorStrips[col];
 
-        public GameColor this[int x, int y]
-            => ColorStrips[x][y];
+        public uint this[int x, int y]
+        {
+            get => ColorStrips[x][y];
+            set => ColorStrips[x][y] = value;
+        }
 
         protected RayTexture()
             => Size = (0, 0);
@@ -34,12 +49,12 @@ namespace RayLib
             return ret;
         }
 
-        public void Add(int a, int r, int g, int b)
+        public void Add(uint color)
         {
             var strip = ColorStrips.LastOrDefault();
             if (strip == null || strip.Count() == Size.h)
                 strip = NewStrip();
-            strip.Add(a, r, g, b);
+            strip.Add(color);
         }
 
         public RayTexture Zip(RayTexture other)
