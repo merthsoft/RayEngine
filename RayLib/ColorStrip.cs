@@ -30,7 +30,7 @@ namespace RayLib
             => new(Strip.Zip(strip, (s1, s2) => s1.IsWhiteTransparent() ? s2 : s1));
 
         public void Resize(int w)
-            => Strip.Resize(w, Color.Black);
+            => Strip.Resize(w, ColorExtensions.Black);
 
         #region IEnumerable<uint>
         public IEnumerator<uint> GetEnumerator() => ((IEnumerable<uint>)Strip).GetEnumerator();
