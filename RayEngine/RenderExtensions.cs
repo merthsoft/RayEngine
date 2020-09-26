@@ -27,7 +27,7 @@ namespace RayEngine
         }
 
         private static uint DarkByDistance(int x, int y, double distance, double viewAngleDegrees, uint color)
-            => DarkenColor(color, 1.0 / (distance+.5) );
+            => DarkenColor(color, 2.0 / (distance+.5) );
         
         private static uint DarkenColor(uint color, double ratio)
         {
@@ -40,19 +40,6 @@ namespace RayEngine
             b = b > 0xFF ? 0xFF : b;
 
             return (color & ColorExtensions.AlphaMask) | ((uint)r << 16) | ((uint)g << 8) | (uint)b;
-        }
-
-        public static Renderer RenderScreenFlash(this Renderer screen, int viewWidth, int viewHeight, GamePlayer player)
-        {
-            if (player.ScreenFlashDuration == 0)
-                return screen;
-            (var r, var g, var b) = player.ScreenFlash;
-            var a = Math.Min(240, player.ScreenFlashDuration);
-            var c = (uint)(a << 24 | r << 16 | g << 8 | b);
-            for (var y = 0; y < viewHeight; y++)
-                screen.DrawHorizonalLine(0, y, viewWidth, c);
-
-            return screen;
         }
     }
 }

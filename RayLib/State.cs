@@ -26,10 +26,18 @@ namespace RayLib
             Action = action;
         }
 
-        public void AddNext(State<TActionParameters> state, int weight = 1)
+        public State<TActionParameters> AddNext(params State<TActionParameters>[] states)
+        {
+            foreach (var state in states)
+                AddNext(state);
+            return this;
+        }
+
+        public State<TActionParameters> AddNext(State<TActionParameters> state, int weight = 1)
         {
             TotalWeight += weight;
             Next.Add((state, TotalWeight));
+            return this;
         }
 
         public State<TActionParameters> Chain(State<TActionParameters> state, int weight = 1)

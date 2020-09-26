@@ -5,7 +5,7 @@ namespace RayLib.Objects
 {
     public abstract class Actor : GameObject
     {
-        protected Random Random = new Random();
+        protected static readonly Random Random = new Random();
         
         public virtual int TextureIndex { get; set; }
         public ActorDef ActorDef => (Def as ActorDef)!;

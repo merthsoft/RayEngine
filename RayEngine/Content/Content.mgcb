@@ -38,6 +38,11 @@
 /processor:RayTextureProcessor
 /build:Sprites/Actors/AtmBucket/Walk.bmp
 
+#begin Sprites/Actors/Goblin/1.png
+/importer:ImageImporter
+/processor:RayTextureProcessor
+/build:Sprites/Actors/Goblin/1.png
+
 #begin Sprites/Actors/Rat/1.bmp
 /importer:ImageImporter
 /processor:RayTextureProcessor

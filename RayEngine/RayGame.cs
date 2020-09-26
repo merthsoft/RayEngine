@@ -34,7 +34,7 @@ namespace RayEngine
         {
             Location = (2.5, 2.5),
             Direction = GameVector.East,
-            FieldOfView = .75,
+            FieldOfView = .85,
         };
 
         private List<WallDef> WallDefs { get; } = new List<WallDef>();
@@ -133,21 +133,23 @@ namespace RayEngine
                 new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Walk") }
             );
 
+            var goblin = new ActorDef("Goblin", new[] { Content.Load<RayTexture>("Sprites/Actors/Goblin/1") });
+
             Map = new Map(ViewWidth, ViewHeight,
                     simpleMap: @"0000000000000000000000000000000000000000000000000000
                                  0  v  0                                            0
                                  0     0                                            0
                                  0 I I 0                                            0
                                  000-0000000033333                                  0
-                                 0     0   I3    3                                  0
-                                 0  B  |    |   a3                                  0
-                                 0     0   I3    3                                  0
+                                 0     0 s I3    3                                  0
+                                 0  B  |    |   g3                                  0
+                                 0s    0   I3    3                                  0
                                  00000000-00333333                                  0
-                                 0                                                  0
-                                 0                                                  0
-                                 0                                                  0
-                                 0                                                  0
-                                 0                                                  0
+                                 0  B  B   0                                        0
+                                 0 s B     0333333                                  0
+                                 0BB  Bs   0    a3                                  0
+                                 0BBB   B  |    a3                                  0
+                                 00000000000333333                                  0
                                  0                                                  0
                                  0                                                  0
                                  0                                                  3
@@ -187,6 +189,8 @@ namespace RayEngine
                             map.SpawnActor<Wanderer>(0, i, j, spider, GameVector.East);
                         else if (c == 'a')
                             map.SpawnActor<Sleeper>(0, i, j, atmBucket, GameVector.West, 1);
+                        else if (c == 'g')
+                            map.SpawnActor<Wanderer>(0, i, j, goblin, GameVector.West, 1);
                         else if (">^<v".Contains(c))
                             Player
                                 .SetLocation(i, j)
@@ -260,7 +264,6 @@ namespace RayEngine
             Graphics.GraphicsDevice.Clear(Color.Black);
             GameScreen.Draw(activeRederer => activeRederer
                     .RenderWorld(ViewWidth, ViewHeight, Step!)
-                    .RenderScreenFlash(ViewWidth, ViewHeight, Player)
             );
             GameScreen.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
             
@@ -270,6 +273,7 @@ namespace RayEngine
                 .DrawTexture(CompassBase, midX - 75, 32, 150, 150)
                 .DrawTexture(CompassNeedle, midX - 75, 32, 150, 150, -Player.Direction.Atan2())
                 .DrawTexture(FaceTextures[Player.Face], midX - 75, ViewHeight - 160, 150, 150)
+                .RenderScreenFlash(ViewWidth, ViewHeight, Player)
             ;
             GameScreen.SpriteBatch.End();
 
