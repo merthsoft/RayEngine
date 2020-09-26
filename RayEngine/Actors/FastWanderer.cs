@@ -6,20 +6,20 @@ using System;
 
 namespace RayEngine.Actors
 {
-    public class Wanderer : Actor
+    public class FastWanderer : Actor
     {
-        protected static readonly State<ActionParameters> WalkState = new(50, 100, Walk);
-        protected static readonly State<ActionParameters> TurnState = new(50, Turn);
+        protected static readonly State<ActionParameters> WalkState = new(5, 10, Walk);
+        protected static readonly State<ActionParameters> TurnState = new(5, Turn);
 
-        static Wanderer()
+        static FastWanderer()
         {
             WalkState.AddNext(TurnState);
             TurnState.AddNext(WalkState, WalkState, TurnState);
         }
 
-        public Wanderer() : base() { }
+        public FastWanderer() : base() { }
 
-        public Wanderer(ActorDef actorDef)
+        public FastWanderer(ActorDef actorDef)
             : base(actorDef) { }
 
         public override void Initialize()
@@ -57,14 +57,12 @@ namespace RayEngine.Actors
 
             (var posX, var posY) = actionParameters.Actor.Location;
             (var dirX, var dirY) = actionParameters.Actor.Direction;
-
-            posX += dirX;
-            posY += dirY;
+            
+            posX += dirX * .25;
+            posY += dirY * .25;
 
             (posX, posY) = (posX, posY).Round();
-            if (actionParameters.Map.BlockedAt(0, (int)posX, (int)posY))
-                Turn(actionParameters);
-            else
+            if (!actionParameters.Map.BlockedAt(0, (int)posX, (int)posY))
                 actionParameters.Actor.Location = (posX, posY);
 
             return true;

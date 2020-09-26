@@ -7,6 +7,7 @@
         public override string DefName => nameof(ActorDef);
 
         public bool BlocksView { get; set; }
+        public bool Blocking { get; set; } = true;
         public RenderStyle RenderStyle { get; set; } = RenderStyle.Sprite;
         public RayTexture[][] Textures { get; set; }
 
@@ -16,6 +17,6 @@
 
         protected ActorDef(string name, int w, int h)
             : base(name, w, h)
-            => Textures = new[] { new RayTexture[0] };
+            => Textures = new[] { System.Array.Empty<RayTexture>() };
     }
 }

@@ -12,7 +12,7 @@ namespace RayLib.Objects
 
         public int ActTimer { get; set; }
 
-        public override bool Blocking => true;
+        public override bool Blocking => ActorDef.Blocking;
         public override bool BlocksView => ActorDef.BlocksView;
         public override RenderStyle RenderStyle => ActorDef.RenderStyle;
 

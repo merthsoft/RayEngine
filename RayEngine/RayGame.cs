@@ -120,13 +120,13 @@ namespace RayEngine
             var pillar = new StaticObjectDef(
                 name: "Pillar", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/Pillar"));
-            
-            var door = new ActorDef(name: "Door", 
+
+            var door = new ActorDef(name: "Door",
                 new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Closed") },
                 new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Opening") },
-                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Open") }) { RenderStyle = RenderStyle.Wall};
+                new[] { Content.Load<RayTexture>("Sprites/Interactable/WoodenDoor/Open") }) { RenderStyle = RenderStyle.Wall };
 
-            var spider = new ActorDef("Spider", new[] { Content.Load<RayTexture>("Sprites/Actors/Spider/1") });
+            var spider = new ActorDef("Spider", new[] { Content.Load<RayTexture>("Sprites/Actors/Spider/1") }) { Blocking = false };
 
             var atmBucket = new ActorDef("Atm", new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Idle") },
                 new[] { Content.Load<RayTexture>("Sprites/Actors/AtmBucket/Wakeup") },
@@ -141,14 +141,14 @@ namespace RayEngine
                                  0     0                                            0
                                  0 I I 0                                            0
                                  000-0000000033333                                  0
-                                 0     0 s I3    3                                  0
-                                 0  B  |    |   g3                                  0
-                                 0s    0   I3    3                                  0
+                                 0   s 0 s I3s   3                                  0
+                                 0 sB  | s  |   g3                                  0
+                                 0s    0s  I3 s  3                                  0
                                  00000000-00333333                                  0
                                  0  B  B   0                                        0
-                                 0 s B     0333333                                  0
-                                 0BB  Bs   0    a3                                  0
-                                 0BBB   B  |    a3                                  0
+                                 0 s B s  s0333333                                  0
+                                 0BBs Bs   0    a3                                  0
+                                 0BBB   B  | s  a3                                  0
                                  00000000000333333                                  0
                                  0                                                  0
                                  0                                                  0
@@ -186,7 +186,7 @@ namespace RayEngine
                         else if (c == 'I')
                             map.SpawnObject(0, i, j, pillar);
                         else if (c == 's')
-                            map.SpawnActor<Wanderer>(0, i, j, spider, GameVector.East);
+                            4.Repeat(_ => map.SpawnActor<FastWanderer>(0, i, j, spider, GameVector.East));
                         else if (c == 'a')
                             map.SpawnActor<Sleeper>(0, i, j, atmBucket, GameVector.West, 1);
                         else if (c == 'g')
