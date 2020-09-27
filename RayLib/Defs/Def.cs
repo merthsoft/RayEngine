@@ -5,7 +5,7 @@ namespace RayLib.Defs
     [DebuggerDisplay("{DefName}: {Name}")]
     public record Def
     {
-        public static Def Empty { get; } = new("<EMPTY>", 0, 0);
+        public static Def Empty { get; } = new("<EMPTY>", GameVector.Zero);
 
         public virtual string DefName => nameof(Def);
 
@@ -16,7 +16,7 @@ namespace RayLib.Defs
             => (Name, DrawSize)
              = (name, drawSize);
 
-        public Def(string name, int w, int h)
-            : this(name, new(w, h)) { }
+        public Def(string name, GameVector drawSize)
+            : this(name, new((int)drawSize.X, (int)drawSize.Y)) { }
     }
 }

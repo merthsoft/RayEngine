@@ -114,9 +114,7 @@ namespace RayEngine
                 name: "Vines", blocking: false, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/Vines/0"),
                 Content.Load<RayTexture>("Sprites/Static/Vines/1"));
-            var bucket = new StaticObjectDef(
-                name: "Bucket", blocking: true, blocksView: false,
-                Content.Load<RayTexture>("Sprites/Static/Bucket"));
+            
             var pillar = new StaticObjectDef(
                 name: "Pillar", blocking: true, blocksView: false,
                 Content.Load<RayTexture>("Sprites/Static/Pillar"));
@@ -135,22 +133,26 @@ namespace RayEngine
 
             var goblin = new ActorDef("Goblin", new[] { Content.Load<RayTexture>("Sprites/Actors/Goblin/1") });
 
+            var secretWall = new ActorDef("SecretWall", WallDefs[0].DrawSize) { RenderStyle = RenderStyle.Sprite };
+
+            var bucket = new ActorDef(name: "Bucket", new[] { Content.Load<RayTexture>("Sprites/Static/Bucket") });
+
             Map = new Map(ViewWidth, ViewHeight,
                     simpleMap: @"0000000000000000000000000000000000000000000000000000
-                                 0  v  0                                            0
-                                 0     0                                            0
-                                 0 I I 0                                            0
-                                 000-0000000033333                                  0
-                                 0   s 0 s I3s   3                                  0
-                                 0 sB  | s  |   g3                                  0
-                                 0s    0s  I3 s  3                                  0
-                                 00000000-00333333                                  0
-                                 0  B  B   0                                        0
-                                 0 s B s  s0333333                                  0
-                                 0BBs Bs   0    a3                                  0
-                                 0BBB   B  | s  a3                                  0
-                                 00000000000333333                                  0
                                  0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                                                  0
+                                 0                 v                                0
+                                 0                                                  0
+                                 0                 B                                0
+                                 0                                                  0
+                                 0                                                  3
+                                 0                                                  3
+                                 0                                                  3
+                                 0                                                  3
+                                 0                                                  3
                                  0                                                  0
                                  0                                                  3
                                  0                                                  3
@@ -170,7 +172,7 @@ namespace RayEngine
                             map.SetWall(0, i, j, WallDefs[wall]);
                         }
                         else if (c == '*')
-                            map.SpawnObject(0, i, j, well);
+                            map.SpawnObject(0, i + .5, j + .5, well);
                         else if (c == '-' || c == '|')
                         {
                             var direction = c == '-' ? GameVector.East : GameVector.North;
@@ -179,18 +181,20 @@ namespace RayEngine
                                 preInit: door => door.BackWall = WallDefs[int.Parse(neighborWall.ToString())]
                             );
                         }
+                        else if (c == 'O')
+                            map.SpawnActor<SecretWall>(0, i, j, secretWall, GameVector.Zero, 1, sw => sw.BackWall = WallDefs[0]);
                         else if (c == 'x')
-                            map.SpawnObject(0, i, j, bloodyWell);
+                            map.SpawnObject(0, i + .5, j + .5, bloodyWell);
                         else if (c == 'B')
-                            map.SpawnObject(0, i, j, bucket);
-                        else if (c == 'I')
-                            map.SpawnObject(0, i, j, pillar);
+                            map.SpawnActor<PushableObject>(0, i + .5, j + .5, bucket);
+                        else if (c == 'I')       
+                            map.SpawnObject(0, i + .5, j + .5, pillar);
                         else if (c == 's')
-                            4.Repeat(_ => map.SpawnActor<FastWanderer>(0, i, j, spider, GameVector.East));
+                            4.Repeat(_ => map.SpawnActor<FastWanderer>(0, i + .5, j + .5, spider, GameVector.East));
                         else if (c == 'a')
-                            map.SpawnActor<Sleeper>(0, i, j, atmBucket, GameVector.West, 1);
+                            map.SpawnActor<Sleeper>(0, i + .5, j + .5, atmBucket, GameVector.West, 1);
                         else if (c == 'g')
-                            map.SpawnActor<Wanderer>(0, i, j, goblin, GameVector.West, 1);
+                            map.SpawnActor<Wanderer>(0, i + .5, j + .5, goblin, GameVector.West, 1);
                         else if (">^<v".Contains(c))
                             Player
                                 .SetLocation(i, j)

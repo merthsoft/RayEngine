@@ -47,7 +47,7 @@ namespace RayLib.Objects
             }
         }
 
-        public GameVector? PlaneCache = null;
+        public GameVector? PlaneCache;
         public GameVector Plane => PlaneCache ??= PlaneEffect(Direction) * FieldOfView;
 
         public abstract bool Blocking { get; }

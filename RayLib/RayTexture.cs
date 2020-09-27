@@ -52,7 +52,7 @@ namespace RayLib
         public void Add(uint color)
         {
             var strip = ColorStrips.LastOrDefault();
-            if (strip == null || strip.Count() == Size.h)
+            if (strip == null || strip.Count == Size.h)
                 strip = NewStrip();
             strip.Add(color);
         }

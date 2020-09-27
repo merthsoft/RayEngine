@@ -1,5 +1,4 @@
 using RayLib.Defs;
-using System.Linq;
 
 namespace RayLib.Intersections
 {

@@ -235,9 +235,9 @@ namespace RayLib
                         if (!directionalObjects.TryGetValue(obj, out var objectIntersections))
                             objectIntersections = new List<Intersection>();
                         directionalObjects[obj] = objectIntersections;
-                        (distance, lineHeight, drawStart, texX) = DrawMathForWalls(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, obj.Def);
-                        objectIntersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, (player.Location - (obj.Location.X, obj.Location.Y)).Atan2().ToDegrees()));
-
+                        (distance, lineHeight, drawStart, texX) = DrawMathForWalls(viewHeight, playerX, playerY, obj.Location.X, obj.Location.Y, rayDir, northWall, stepX, stepY, obj.Def);
+                        if (texX != -1)
+                            objectIntersections.Add(new ObjectIntersection(obj, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, (player.Location - (obj.Location.X, obj.Location.Y)).Atan2().ToDegrees()));
 
                         if (obj.BlocksView)
                         {
@@ -251,7 +251,7 @@ namespace RayLib
                 {
                     (distance, lineHeight, drawStart, texX) = DrawMathForWalls(viewHeight, playerX, playerY, mapX, mapY, rayDir, northWall, stepX, stepY, wall);
                     zbuffer[screenX] = distance;
-                    if (!blocked)
+                    if (!blocked && texX != -1)
                         Intersection.Add(new WallIntersection(wall, screenX, texX, drawStart, drawStart + lineHeight, distance, lineHeight, ((mapX, mapY) - player.Location).Atan2().ToDegrees(), northWall));
                 }
                 screenX++;
@@ -314,7 +314,7 @@ namespace RayLib
             return new Step(Intersection, ObjectsInSight, new[] { zbuffer });
         }
 
-        private (double distance, int lineHeight, int drawStart, int texX) DrawMathForWalls(int viewHeight, double posX, double posY, double mapX, double mapY, GameVector rayDir, bool northWall, int stepX, int stepY, Def def)
+        private static (double distance, int lineHeight, int drawStart, int texX) DrawMathForWalls(int viewHeight, double posX, double posY, double mapX, double mapY, GameVector rayDir, bool northWall, int stepX, int stepY, Def def)
         {
             double distance;
             int lineHeight;
@@ -330,6 +330,9 @@ namespace RayLib
                 : posX + distance * rayDir.X;
             wallX -= (int)wallX;
 
+            if (wallX < 0 || wallX > 1)
+                return (0, 0, 0, -1);
+
             var textureWidth = def.DrawSize.W;
             texX = (int)(wallX * textureWidth);
             if (!northWall && rayDir.X > 0)
@@ -343,7 +346,7 @@ namespace RayLib
         public void SetWall(int layer, int x, int y, WallDef wall)
             => Walls[layer][x][y] = wall;
 
-        public GameObject SpawnObject(int layer, int x, int y, StaticObjectDef def, GameVector? direction = null)
+        public GameObject SpawnObject(int layer, double x, double y, StaticObjectDef def, GameVector? direction = null)
         {
             var obj = new StaticObject(def, x, y);
             if (direction != null)
@@ -354,9 +357,9 @@ namespace RayLib
             return obj;
         }
 
-        public T SpawnActor<T>(int layer, int x, int y, ActorDef def, GameVector? direction = null, double fov = .75, Action<T>? preInit = null) where T : Actor, new()
+        public T SpawnActor<T>(int layer, double x, double y, ActorDef def, GameVector? direction = null, double fov = .75, Action<T>? preInit = null) where T : Actor, new()
         {
-            var obj = new T() { Def = def , Location = (x + .5, y + .5), Direction = direction ?? GameVector.Zero, FieldOfView = fov };
+            var obj = new T() { Def = def , Location = (x, y), Direction = direction ?? GameVector.Zero, FieldOfView = fov };
             preInit?.Invoke(obj);
             obj.Initialize();
             Actors.Add(obj);
@@ -367,16 +370,16 @@ namespace RayLib
         public void ClearPlayer(Player player)
             => RemoveFromObjectMap(0, player);
 
-        public bool BlockedAt(int layer, GameVector location, bool playerBlocks = true)
-            => BlockedAt(layer, (int)location.X, (int)location.Y, playerBlocks);
+        public bool BlockedAt(int layer, GameVector location, params GameObject[] objectsToIgnore)
+            => BlockedAt(layer, (int)location.X, (int)location.Y, objectsToIgnore);
 
-        public bool BlockedAt(int layer, int x, int y, bool playerBlocks = true)
+        public bool BlockedAt(int layer, int x, int y, params GameObject[] objectsToIgnore)
         {
             if (x < 0 || y < 0 || x >= Size.w || y >= Size.h)
                 return true;
             if (Walls[layer][x][y] != WallDef.Empty)
                 return true;
-            return ObjectMap[layer][x][y].Any(o => o is Player p ? o.Blocking && playerBlocks : o.Blocking);
+            return ObjectMap[layer][x][y].Any(o => !objectsToIgnore.Contains(o) && o.Blocking);
         }
 
         public void SetPlayer(Player player)
@@ -390,7 +393,7 @@ namespace RayLib
             foreach (var direction in GameVector.CardinalDirections8.Select(v => v.Round(0)))
             {
                 var n = root + direction;
-                if (!BlockedAt(0, n, false))
+                if (!BlockedAt(0, n))
                     yield return n;
             }
         }

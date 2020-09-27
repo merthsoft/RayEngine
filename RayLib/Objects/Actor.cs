@@ -36,9 +36,12 @@ namespace RayLib.Objects
             if (CurrentState.Action(parameters))
             {
                 CurrentState = CurrentState.Advance();
-                ActTimer = CurrentState.GetTimer();
+                ResetTimer();
             }
         }
+
+        public void ResetTimer() 
+            => ActTimer = CurrentState?.GetTimer() ?? 0;
 
         public static bool InteractingWith(ActionParameters parameters)
         {
@@ -53,7 +56,10 @@ namespace RayLib.Objects
 
         public static bool TimerUp(ActionParameters parameters)
             => parameters.Actor.ActTimer == 0;
-        
+
+        public static bool NoAction(ActionParameters _)
+            => false;
+
         public override RayTexture GetTexture(double viewAngle)
             => GetTextureFromAngle(ActorDef.Textures[TextureIndex], viewAngle);
     }
